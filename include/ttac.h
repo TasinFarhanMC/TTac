@@ -37,8 +37,10 @@ typedef struct {
 #define TTAC_OPP1_DIFF(x) (x ^ 0b1001)
 #define TTAC_OPP2_DIFF(x) (x ^ (0b1000 | 0b0010 << (x ^ 0b0001)))
 
-#define TTAC_ADJ1_DIFF(x) (~x)
+#define TTAC_ADJ1_DIFF(x) (x ^ 0b1111)
 #define TTAC_ADJ2_DIFF(x) (x ^ (0b1000 | 0b0010 << (x & 0b0001)))
+
+#define TTAC_MIDDLE(a, b) (TTAC_IS_ADJ_DIFF(TTAC_ADJ1_DIFF(a), b) ? TTAC_ADJ1_DIFF(a) : TTAC_ADJ1_DIFF(b))
 
 #define TTAC_IS_CORNER(x) (x & 0b1000)
 #define TTAC_IS_EDGE(x) !(x & 0b1000)
