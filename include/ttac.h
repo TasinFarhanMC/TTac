@@ -12,6 +12,7 @@ typedef TTacCell (*TTacBranch)(void *game, TTacCell move);
 typedef struct {
   TTacCell control1;
   TTacCell control2;
+  TTacBool state;
   TTacBranch branch;
 } TTacGame;
 
@@ -25,10 +26,14 @@ typedef struct {
 #define TTAC_LEFT 0b0000
 #define TTAC_RIGHT 0b0110
 
-#define TTAC_CENTER 255
-#define TTAC_GAME_DRAW 254
-#define TTAC_GAME_WIN 253
-#define TTAC_GAME_LOSE 252
+#define TTAC_CENTER 0b0001
+
+#define TTAC_GAME_PENDING 0
+#define TTAC_GAME_DRAW 1
+#define TTAC_GAME_AI_WIN 2
+#define TTAC_GAME_PLAYER_LOSS 2
+#define TTAC_GAME_AI_LOSS 3
+#define TTAC_GAME_PLAYER_WIN 3
 
 #define TTAC_OPP_SAME(x) (x ^ 0b0110)
 #define TTAC_ADJ1_SAME(x) (x ^ 0b0011)
@@ -40,7 +45,7 @@ typedef struct {
 #define TTAC_ADJ1_DIFF(x) (x ^ 0b1111)
 #define TTAC_ADJ2_DIFF(x) (x ^ (0b1000 | 0b0010 << (x & 0b0001)))
 
-#define TTAC_MIDDLE(a, b) (TTAC_IS_ADJ_DIFF(TTAC_ADJ1_DIFF(a), b) ? TTAC_ADJ1_DIFF(a) : TTAC_ADJ1_DIFF(b))
+#define TTAC_MIDDLE(a, b) (TTAC_IS_ADJ_DIFF(TTAC_ADJ1_DIFF(a), b) ? TTAC_ADJ1_DIFF(b) : TTAC_ADJ1_DIFF(a))
 
 #define TTAC_IS_CORNER(x) (x & 0b1000)
 #define TTAC_IS_EDGE(x) !(x & 0b1000)
@@ -52,7 +57,8 @@ typedef struct {
 #define TTAC_IS_ADJ_DIFF(a, b) ((a ^ b) ^ (0b1000 | 0b0010 << (a & 0b0001)))
 
 extern void ttac_create_game(TTacGame *game, TTacBool starting_player);
-extern TTacCell ttac_play(TTacGame *game, TTacCell move);
+#define ttac_play(game, move) game.branch(&game, move)
+#define ttac_game_state(game) game.state
 
 #ifdef __cplusplus
 }
