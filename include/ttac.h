@@ -45,18 +45,20 @@ typedef struct {
 #define TTAC_ADJ1_DIFF(x) (x ^ 0b1111)
 #define TTAC_ADJ2_DIFF(x) (x ^ (0b1000 | 0b0010 << (x & 0b0001)))
 
-#define TTAC_MIDDLE(a, b) (TTAC_IS_ADJ_DIFF(TTAC_ADJ1_DIFF(a), b) ? TTAC_ADJ1_DIFF(b) : TTAC_ADJ1_DIFF(a))
-
 #define TTAC_IS_CORNER(x) (x & 0b1000)
 #define TTAC_IS_EDGE(x) !(x & 0b1000)
 
 #define TTAC_IS_OPP_SAME(a, b) !((a ^ b) & 0b0001)
 #define TTAC_IS_ADJ_SAME(a, b) ((a ^ b) & 0b0001)
 
-#define TTAC_IS_OPP_DIFF(a, b) ((a ^ b) ^ (0b1000 | 0b0010 << (a ^ 0b0001)))
-#define TTAC_IS_ADJ_DIFF(a, b) ((a ^ b) ^ (0b1000 | 0b0010 << (a & 0b0001)))
+#define TTAC_IS_OPP_DIFF(a, b) !((a ^ b) & (0b0010 << (a & 0b0001)))
+#define TTAC_IS_ADJ_DIFF(a, b) ((a ^ b) & (0b0010 << (a & 0b0001)))
 
-extern void ttac_create_game(TTacGame *game, TTacBool starting_player);
+#define TTAC_MIDDLE(a, b) (TTAC_IS_ADJ_DIFF(TTAC_ADJ1_DIFF(a), b) ? TTAC_ADJ1_DIFF(a) : TTAC_ADJ1_DIFF(b))
+#define TTAC_LINE(corner, edge) (TTAC_IS_ADJ_DIFF(TTAC_ADJ1_SAME(corner), edge) ? TTAC_ADJ1_SAME(corner) : TTAC_ADJ2_SAME(corner))
+#define TTAC_LINE_ORTHO(corner, edge) (TTAC_IS_ADJ_DIFF(TTAC_ADJ1_SAME(corner), edge) ? TTAC_ADJ2_SAME(corner) : TTAC_ADJ1_SAME(corner))
+
+extern void ttac_create_game(TTacGame *game, TTacBool ai_start);
 #define ttac_play(game, move) game.branch(&game, move)
 #define ttac_game_state(game) game.state
 
