@@ -128,11 +128,11 @@ int main() {
       ttac_create_game(&game, 1); // AI starts
 
       TTacCell first_ai_move = ttac_play(game, 255); // AI first move
-      if (first_ai_move < TTAC_CENTER) {
-        int ai_idx = cell_to_index(first_ai_move);
-        if (ai_idx >= 0) board[ai_idx] = 2;
-        std::cout << "AI played first: " << int(first_ai_move) << "\n";
-      }
+                                                     // if (first_ai_move < TTAC_CENTER) {
+      int ai_idx = cell_to_index(first_ai_move);
+      if (ai_idx >= 0) board[ai_idx] = 2;
+      std::cout << "AI played first: " << int(first_ai_move) << "\n";
+      // }
     }
   }
 
