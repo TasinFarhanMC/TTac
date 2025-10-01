@@ -1,4 +1,4 @@
-#include "test.hpp"
+#include <test.hpp>
 
 TEST_CASE("SAME", "[SAME]") {
   // Edge <-> Edge ordered permutations (4 * 3 = 12)

@@ -1,4 +1,4 @@
-#include "test.hpp"
+#include <test.hpp>
 
 TEST_CASE("TYPE") {
   SECTION("CENTER") {

@@ -1,35 +1,37 @@
 #define CATCH_CONFIG_MAIN
 
 #include "ttac.h"
+#include <bitset>
 #include <catch2/catch_all.hpp>
-#include <catch2/catch_message.hpp>
-#include <catch2/catch_test_macros.hpp>
 #include <string>
 
 #define GEN_FUNC(name)                                                                                                                                 \
-  inline bool name(TTacCell x) { return TTAC_##name(x); }
+  inline TTacCell name(TTacCell x) { return TTAC_##name(x); }
+
+#define GEN_DUAL_FUNC(name)                                                                                                                            \
+  inline TTacCell name(TTacCell a, TTacCell b) { return TTAC_##name(a, b); }
 
 #define GEN_CHECK(name)                                                                                                                                \
   inline bool IS_##name(TTacCell x) { return TTAC_IS_##name(x); }                                                                                      \
   inline void REQUIRE_##name(TTacCell x) {                                                                                                             \
-    INFO("x: " << cell_name(x));                                                                                                                       \
+    INFO("x: " << cell_name(x) << " [" << std::bitset<4>(x) << "]");                                                                                   \
     REQUIRE(IS_##name(x));                                                                                                                             \
   }                                                                                                                                                    \
   inline void REQUIRE_##name##_FALSE(TTacCell x) {                                                                                                     \
-    INFO("x: " << cell_name(x));                                                                                                                       \
+    INFO("x: " << cell_name(x) << " [" << std::bitset<4>(x) << "]");                                                                                   \
     REQUIRE_FALSE(IS_##name(x));                                                                                                                       \
   }
 
 #define GEN_REQUIRE(name)                                                                                                                              \
   inline bool IS_##name(TTacCell a, TTacCell b) { return TTAC_IS_##name(a, b); }                                                                       \
   inline void REQUIRE_##name(TTacCell a, TTacCell b) {                                                                                                 \
-    INFO("a: " << cell_name(a));                                                                                                                       \
-    INFO("b: " << cell_name(b));                                                                                                                       \
+    INFO("a: " << cell_name(a) << " [" << std::bitset<4>(a) << "]");                                                                                   \
+    INFO("b: " << cell_name(b) << " [" << std::bitset<4>(b) << "]");                                                                                   \
     REQUIRE(IS_##name(a, b));                                                                                                                          \
   }                                                                                                                                                    \
   inline void REQUIRE_##name##_FALSE(TTacCell a, TTacCell b) {                                                                                         \
-    INFO("a: " << cell_name(a));                                                                                                                       \
-    INFO("b: " << cell_name(b));                                                                                                                       \
+    INFO("a: " << cell_name(a) << " [" << std::bitset<4>(a) << "]");                                                                                   \
+    INFO("b: " << cell_name(b) << " [" << std::bitset<4>(b) << "]");                                                                                   \
     REQUIRE_FALSE(IS_##name(a, b));                                                                                                                    \
   }
 
@@ -81,3 +83,7 @@ GEN_FUNC(ADJ2_SAME);
 
 GEN_FUNC(ADJ1_DIFF);
 GEN_FUNC(ADJ2_DIFF);
+
+GEN_DUAL_FUNC(LINE);
+GEN_DUAL_FUNC(LINE_OPP);
+GEN_DUAL_FUNC(MIDDLE);

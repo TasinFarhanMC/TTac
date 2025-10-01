@@ -40,7 +40,7 @@ typedef struct {
 #define TTAC_ADJ2_SAME(x) (x ^ 0b0101)
 
 #define TTAC_OPP1_DIFF(x) (x ^ 0b1001)
-#define TTAC_OPP2_DIFF(x) (x ^ (0b1000 | 0b0010 << (x ^ 0b0001)))
+#define TTAC_OPP2_DIFF(x) (x ^ (0b1000 | 0b0100 >> (x & 0b0001)))
 
 #define TTAC_ADJ1_DIFF(x) (x ^ 0b1111)
 #define TTAC_ADJ2_DIFF(x) (x ^ (0b1000 | 0b0010 << (x & 0b0001)))
@@ -60,7 +60,7 @@ typedef struct {
 
 #define TTAC_MIDDLE(a, b) (TTAC_IS_ADJ_DIFF(TTAC_ADJ1_DIFF(a), b) ? TTAC_ADJ1_DIFF(a) : TTAC_ADJ1_DIFF(b))
 #define TTAC_LINE(corner, edge) (TTAC_IS_ADJ_DIFF(TTAC_ADJ1_SAME(corner), edge) ? TTAC_ADJ1_SAME(corner) : TTAC_ADJ2_SAME(corner))
-#define TTAC_LINE_ORTHO(corner, edge) (TTAC_IS_ADJ_DIFF(TTAC_ADJ1_SAME(corner), edge) ? TTAC_ADJ2_SAME(corner) : TTAC_ADJ1_SAME(corner))
+#define TTAC_LINE_OPP(corner, edge) (TTAC_IS_ADJ_DIFF(TTAC_ADJ1_SAME(corner), edge) ? TTAC_ADJ2_SAME(corner) : TTAC_ADJ1_SAME(corner))
 
 extern void ttac_create_game(TTacGame *game, TTacBool ai_start);
 #define ttac_play(game, move) game.branch(&game, move)

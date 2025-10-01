@@ -1,6 +1,4 @@
-#include "test.hpp"
-#include "ttac.h"
-#include <catch2/catch_test_macros.hpp>
+#include <test.hpp>
 
 TEST_CASE("DIFFERENT", "[DIFFERENT]") {
   // Edge -> Corner (4 * 4 = 16)

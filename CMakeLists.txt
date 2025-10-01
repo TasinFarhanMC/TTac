@@ -19,10 +19,11 @@ if(TTAC_TESTS)
   include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/get_cpm.cmake)
   cpmaddpackage("gh:catchorg/Catch2@3.9.0")
 
-  file(GLOB TEST_FILES "${TEST_DIR}/*.cpp")
+  file(GLOB_RECURSE TEST_FILES "${TEST_DIR}/*.cpp")
   add_executable(tests ${TEST_FILES})
   target_compile_features(tests PRIVATE cxx_std_17)
   target_link_libraries(tests PRIVATE Catch2::Catch2WithMain TTac)
+  target_include_directories(tests PRIVATE ${TEST_DIR})
 
   enable_testing()
   include(${Catch2_SOURCE_DIR}/extras/Catch.cmake)

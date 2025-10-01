@@ -92,7 +92,7 @@ static TTacCell ai_center(void *game, TTacCell move) {
 //   // EDGE
 //   // ADJACENT
 //   if (TTAC_IS_ADJ_DIFF(control, move)) {
-//     game_ptr->control1 = TTAC_LINE_ORTHO(control, move);
+//     game_ptr->control1 = TTAC_LINE_OPP(control, move);
 //     game_ptr->control2 = control;
 //     game_ptr->branch = ai_triangle;
 //     return game_ptr->control1;
@@ -128,7 +128,7 @@ static TTacCell ai_corner(void *game, TTacCell move) {
 
   // edge logic: adjacent vs opposite
   if (TTAC_IS_ADJ_DIFF(control, move)) {
-    output = TTAC_LINE_ORTHO(control, move);
+    output = TTAC_LINE_OPP(control, move);
     game_ptr->control1 = output;
     game_ptr->control2 = control;
     return output;
