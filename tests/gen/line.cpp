@@ -57,3 +57,32 @@ TEST_CASE("LINE OPP", "[GENERATE][LINE OPP]") {
   REQUIRE_GEN_LINE_OPP(TTAC_BOTTOM_RIGHT, TTAC_BOTTOM, TTAC_TOP_RIGHT);
   REQUIRE_GEN_LINE_OPP(TTAC_BOTTOM_RIGHT, TTAC_RIGHT, TTAC_BOTTOM_LEFT);
 }
+
+inline void REQUIRE_GEN_ADJ_LINE(TTacCell corner, TTacCell edge, TTacCell expect) {
+  TTacCell result = ADJ_LINE(corner, edge);
+
+  INFO("corner: " << cell_name(corner) << " [" << std::bitset<4>(corner) << "]");
+  INFO("edge: " << cell_name(edge) << " [" << std::bitset<4>(edge) << "]");
+  INFO("result: " << cell_name(result) << " [" << std::bitset<4>(result) << "]");
+  INFO("expected: " << cell_name(expect) << " [" << std::bitset<4>(result) << "]");
+
+  REQUIRE(ADJ_LINE(corner, edge) == expect);
+}
+
+TEST_CASE("ADJACENT LINE", "[ADJACENT LINE]") {
+  // Top edges
+  REQUIRE_GEN_ADJ_LINE(TTAC_TOP_LEFT, TTAC_RIGHT, TTAC_TOP_RIGHT);
+  REQUIRE_GEN_ADJ_LINE(TTAC_TOP_RIGHT, TTAC_LEFT, TTAC_TOP_LEFT);
+
+  // Bottom edges
+  REQUIRE_GEN_ADJ_LINE(TTAC_BOTTOM_LEFT, TTAC_RIGHT, TTAC_BOTTOM_RIGHT);
+  REQUIRE_GEN_ADJ_LINE(TTAC_BOTTOM_RIGHT, TTAC_LEFT, TTAC_BOTTOM_LEFT);
+
+  // Left edges
+  REQUIRE_GEN_ADJ_LINE(TTAC_TOP_LEFT, TTAC_BOTTOM, TTAC_BOTTOM_LEFT);
+  REQUIRE_GEN_ADJ_LINE(TTAC_BOTTOM_LEFT, TTAC_TOP, TTAC_TOP_LEFT);
+
+  // Right edges
+  REQUIRE_GEN_ADJ_LINE(TTAC_TOP_RIGHT, TTAC_BOTTOM, TTAC_BOTTOM_RIGHT);
+  REQUIRE_GEN_ADJ_LINE(TTAC_BOTTOM_RIGHT, TTAC_TOP, TTAC_TOP_RIGHT);
+}
