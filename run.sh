@@ -16,6 +16,11 @@ if [[ "$key" == "r" ]]; then
   cmake --build --preset debug
   echo "Running..."
   ./bin/tests
+elif [[ "$key" == "e" ]]; then
+  echo "Building..."
+  cmake --build --preset debug
+  echo "Running Example..."
+  ./bin/ttac_raylib
 elif [[ "$key" == "g" ]]; then
   echo "Building..."
   cmake --build --preset debug

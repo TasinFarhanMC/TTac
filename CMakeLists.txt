@@ -29,3 +29,7 @@ if(TTAC_TESTS)
   include(${Catch2_SOURCE_DIR}/extras/Catch.cmake)
   catch_discover_tests(tests)
 endif()
+
+if(TTAC_EXAMPLE)
+  add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/example")
+endif()

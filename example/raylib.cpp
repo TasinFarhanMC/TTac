@@ -2,10 +2,37 @@
 #include "ttac.h"
 #include <array>
 #include <iostream>
+#include <string>
 
 // Board setup
 constexpr int CELL_SIZE = 150;
 constexpr int GRID_SIZE = 3;
+
+// Convert TTacCell to readable name
+std::string cell_name(TTacCell cell) {
+  switch (cell) {
+  case TTAC_TOP_LEFT:
+    return "TOP_LEFT";
+  case TTAC_TOP:
+    return "TOP";
+  case TTAC_TOP_RIGHT:
+    return "TOP_RIGHT";
+  case TTAC_LEFT:
+    return "LEFT";
+  case TTAC_CENTER:
+    return "CENTER";
+  case TTAC_RIGHT:
+    return "RIGHT";
+  case TTAC_BOTTOM_LEFT:
+    return "BOTTOM_LEFT";
+  case TTAC_BOTTOM:
+    return "BOTTOM";
+  case TTAC_BOTTOM_RIGHT:
+    return "BOTTOM_RIGHT";
+  default:
+    return "INVALID";
+  }
+}
 
 // Map mouse coordinates to TTacCell
 TTacCell mouse_to_cell(int x, int y) {
@@ -47,7 +74,7 @@ int cell_to_index(TTacCell cell) {
   case TTAC_BOTTOM_RIGHT:
     return 8;
   default:
-    return -1; // sentinel / invalid
+    return -1;
   }
 }
 
@@ -65,23 +92,50 @@ void draw_symbol(int index, int player) {
     DrawCircle(px, py, radius, BLUE); // AI
 }
 
+// Print winner
+void print_winner(TTacGame &game) {
+  switch (ttac_game_state(game)) {
+  case TTAC_GAME_AI_WIN:
+    std::cout << ">>> AI wins!\n";
+    break;
+  case TTAC_GAME_DRAW:
+    std::cout << ">>> Draw game.\n";
+    break;
+  case TTAC_GAME_PENDING:
+    std::cout << ">>> Game still pending.\n";
+    break;
+  default:
+    std::cout << ">>> Unknown state.\n";
+    break;
+  }
+}
+
 int main() {
   InitWindow(GRID_SIZE * CELL_SIZE, GRID_SIZE * CELL_SIZE, "TTac AI Tester");
   SetTargetFPS(60);
 
   TTacGame game;
-  ttac_create_game(&game, 1); // AI starts
-
   std::array<int, 9> board {}; // 0=empty, 1=human, 2=AI
   bool game_over = false;
+  bool ai_starts = true;
 
-  // Let AI make the first move
-  TTacCell first_ai_move = ttac_play(game, 255); // sentinel for no human move
-                                                 // if (first_ai_move < TTAC_CENTER) {
-  int ai_idx = cell_to_index(first_ai_move);
-  if (ai_idx >= 0) board[ai_idx] = 2;
-  std::cout << "AI played first: " << int(first_ai_move) << "\n";
-  // }
+  auto reset_game = [&](bool ai_first) {
+    board.fill(0);
+    game_over = false;
+    ai_starts = ai_first;
+    ttac_create_game(&game, ai_first);
+
+    if (ai_first) {
+      TTacCell first_ai_move = ttac_play(game, 255); // sentinel
+      int ai_idx = cell_to_index(first_ai_move);
+      if (ai_idx >= 0) board[ai_idx] = 2;
+      std::cout << "[AI] plays first: " << cell_name(first_ai_move) << "\n";
+    } else {
+      std::cout << "Human plays first.\n";
+    }
+  };
+
+  reset_game(true); // default: AI starts
 
   while (!WindowShouldClose()) {
     BeginDrawing();
@@ -103,36 +157,31 @@ int main() {
     if (!game_over && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
       TTacCell move = mouse_to_cell(GetMouseX(), GetMouseY());
       int idx = cell_to_index(move);
-      if (idx < 0 || board[idx] != 0) continue; // invalid / already played
+      if (idx < 0 || board[idx] != 0) continue;
 
-      // Update human move first
       board[idx] = 1;
+      std::cout << "[Human] plays: " << cell_name(move) << "\n";
 
-      // Call AI
       TTacCell ai_move = ttac_play(game, move);
 
-      // Check game end
       if (ttac_game_state(game) != TTAC_GAME_PENDING) {
         game_over = true;
-        std::cout << "Game ended: " << int(ai_move) << "\n";
+        print_winner(game);
       }
-      // Update AI move
+
       int ai_idx = cell_to_index(ai_move);
-      if (ai_idx >= 0) board[ai_idx] = 2;
-      std::cout << "AI played: " << int(ai_move) << "\n";
+      if (ai_idx >= 0) {
+        board[ai_idx] = 2;
+        std::cout << "[AI] plays: " << cell_name(ai_move) << "\n";
+      }
     }
 
+    // Reset controls
     if (IsKeyPressed(KEY_R)) {
-      board.fill(0);
-      game_over = false;
-      ttac_create_game(&game, 1); // AI starts
-
-      TTacCell first_ai_move = ttac_play(game, 255); // AI first move
-                                                     // if (first_ai_move < TTAC_CENTER) {
-      int ai_idx = cell_to_index(first_ai_move);
-      if (ai_idx >= 0) board[ai_idx] = 2;
-      std::cout << "AI played first: " << int(first_ai_move) << "\n";
-      // }
+      reset_game(true); // AI starts
+    }
+    if (IsKeyPressed(KEY_H)) {
+      reset_game(false); // Human starts
     }
   }
 
