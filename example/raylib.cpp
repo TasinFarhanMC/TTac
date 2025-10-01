@@ -4,55 +4,11 @@
 #include <iostream>
 #include <string>
 
-// Board setup
-constexpr int CELL_SIZE = 150;
 constexpr int GRID_SIZE = 3;
 
-// Convert TTacCell to readable name
-std::string cell_name(TTacCell cell) {
-  switch (cell) {
-  case TTAC_TOP_LEFT:
-    return "TOP_LEFT";
-  case TTAC_TOP:
-    return "TOP";
-  case TTAC_TOP_RIGHT:
-    return "TOP_RIGHT";
-  case TTAC_LEFT:
-    return "LEFT";
-  case TTAC_CENTER:
-    return "CENTER";
-  case TTAC_RIGHT:
-    return "RIGHT";
-  case TTAC_BOTTOM_LEFT:
-    return "BOTTOM_LEFT";
-  case TTAC_BOTTOM:
-    return "BOTTOM";
-  case TTAC_BOTTOM_RIGHT:
-    return "BOTTOM_RIGHT";
-  default:
-    return "INVALID";
-  }
-}
+enum Mode { MODE_AI_START, MODE_HUMAN_START, MODE_BOX };
 
-// Map mouse coordinates to TTacCell
-TTacCell mouse_to_cell(int x, int y) {
-  int col = x / CELL_SIZE;
-  int row = y / CELL_SIZE;
-
-  if (row == 0 && col == 0) return TTAC_TOP_LEFT;
-  if (row == 0 && col == 1) return TTAC_TOP;
-  if (row == 0 && col == 2) return TTAC_TOP_RIGHT;
-  if (row == 1 && col == 0) return TTAC_LEFT;
-  if (row == 1 && col == 1) return TTAC_CENTER;
-  if (row == 1 && col == 2) return TTAC_RIGHT;
-  if (row == 2 && col == 0) return TTAC_BOTTOM_LEFT;
-  if (row == 2 && col == 1) return TTAC_BOTTOM;
-  if (row == 2 && col == 2) return TTAC_BOTTOM_RIGHT;
-
-  return 255; // invalid
-}
-
-// Map TTacCell to board index 0..8
+// Map TTacCell to index
 int cell_to_index(TTacCell cell) {
   switch (cell) {
   case TTAC_TOP_LEFT:
@@ -78,111 +34,121 @@ int cell_to_index(TTacCell cell) {
   }
 }
 
-// Draw a symbol for a player
-void draw_symbol(int index, int player) {
-  int row = index / GRID_SIZE;
-  int col = index % GRID_SIZE;
-  int px = col * CELL_SIZE + CELL_SIZE / 2;
-  int py = row * CELL_SIZE + CELL_SIZE / 2;
-  int radius = CELL_SIZE / 3;
+// Map mouse coords to TTacCell
+TTacCell mouse_to_cell(int x, int y, int cell_w, int cell_h) {
+  int col = x / cell_w;
+  int row = y / cell_h;
 
-  if (player == 1)
-    DrawCircle(px, py, radius, RED); // Human
-  else if (player == 2)
-    DrawCircle(px, py, radius, BLUE); // AI
+  if (row == 0 && col == 0) return TTAC_TOP_LEFT;
+  if (row == 0 && col == 1) return TTAC_TOP;
+  if (row == 0 && col == 2) return TTAC_TOP_RIGHT;
+  if (row == 1 && col == 0) return TTAC_LEFT;
+  if (row == 1 && col == 1) return TTAC_CENTER;
+  if (row == 1 && col == 2) return TTAC_RIGHT;
+  if (row == 2 && col == 0) return TTAC_BOTTOM_LEFT;
+  if (row == 2 && col == 1) return TTAC_BOTTOM;
+  if (row == 2 && col == 2) return TTAC_BOTTOM_RIGHT;
+  return 255;
 }
 
-// Print winner
-void print_winner(TTacGame &game) {
-  switch (ttac_game_state(game)) {
-  case TTAC_GAME_AI_WIN:
-    std::cout << ">>> AI wins!\n";
-    break;
-  case TTAC_GAME_DRAW:
-    std::cout << ">>> Draw game.\n";
-    break;
-  case TTAC_GAME_PENDING:
-    std::cout << ">>> Game still pending.\n";
-    break;
-  default:
-    std::cout << ">>> Unknown state.\n";
-    break;
-  }
+// Draw a symbol
+void draw_symbol(int index, int player, int cell_w, int cell_h) {
+  int row = index / GRID_SIZE;
+  int col = index % GRID_SIZE;
+  int px = col * cell_w + cell_w / 2;
+  int py = row * cell_h + cell_h / 2;
+  int radius = std::min(cell_w, cell_h) / 3;
+
+  if (player == 1) DrawCircle(px, py, radius, RED);
+  if (player == 2) DrawCircle(px, py, radius, BLUE);
 }
 
 int main() {
-  InitWindow(GRID_SIZE * CELL_SIZE, GRID_SIZE * CELL_SIZE, "TTac AI Tester");
+  int win_w = 600;
+  int win_h = 600;
+
+  SetConfigFlags(FLAG_WINDOW_RESIZABLE);
+  InitWindow(win_w, win_h, "TTac AI / Human / Box Mode");
   SetTargetFPS(60);
 
   TTacGame game;
-  std::array<int, 9> board {}; // 0=empty, 1=human, 2=AI
+  std::array<int, 9> board {};
   bool game_over = false;
-  bool ai_starts = true;
+  Mode mode = MODE_AI_START;
 
-  auto reset_game = [&](bool ai_first) {
+  auto start_game = [&](Mode start_mode) {
     board.fill(0);
     game_over = false;
-    ai_starts = ai_first;
-    ttac_create_game(&game, ai_first);
+    mode = start_mode;
 
-    if (ai_first) {
-      TTacCell first_ai_move = ttac_play(game, 255); // sentinel
-      int ai_idx = cell_to_index(first_ai_move);
-      if (ai_idx >= 0) board[ai_idx] = 2;
-      std::cout << "[AI] plays first: " << cell_name(first_ai_move) << "\n";
-    } else {
-      std::cout << "Human plays first.\n";
+    if (start_mode == MODE_AI_START) {
+      ttac_create_game(&game, true);
+      TTacCell ai_move = ttac_play(game, 255);
+      int idx = cell_to_index(ai_move);
+      if (idx >= 0) board[idx] = 2;
+    } else if (start_mode == MODE_HUMAN_START) {
+      ttac_create_game(&game, false);
     }
   };
 
-  reset_game(true); // default: AI starts
+  start_game(MODE_AI_START);
 
   while (!WindowShouldClose()) {
+    win_w = GetScreenWidth();
+    win_h = GetScreenHeight();
+
+    int cell_w = win_w / GRID_SIZE;
+    int cell_h = win_h / GRID_SIZE;
+
     BeginDrawing();
     ClearBackground(RAYWHITE);
 
     // Draw grid
     for (int i = 0; i <= GRID_SIZE; ++i) {
-      DrawLine(i * CELL_SIZE, 0, i * CELL_SIZE, CELL_SIZE * GRID_SIZE, BLACK);
-      DrawLine(0, i * CELL_SIZE, CELL_SIZE * GRID_SIZE, i * CELL_SIZE, BLACK);
+      DrawLine(i * cell_w, 0, i * cell_w, win_h, BLACK);
+      DrawLine(0, i * cell_h, win_w, i * cell_h, BLACK);
     }
 
     // Draw symbols
-    for (int i = 0; i < 9; ++i) {
-      if (board[i] != 0) draw_symbol(i, board[i]);
-    }
+    for (int i = 0; i < 9; ++i)
+      if (board[i] != 0) draw_symbol(i, board[i], cell_w, cell_h);
+
+    // Draw current mode
+    std::string mode_text = (mode == MODE_AI_START) ? "Mode: AI Start" : (mode == MODE_HUMAN_START) ? "Mode: Human Start" : "Mode: Box";
+    DrawText(mode_text.c_str(), 10, 10, 20, DARKGRAY);
 
     EndDrawing();
 
-    if (!game_over && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
-      TTacCell move = mouse_to_cell(GetMouseX(), GetMouseY());
-      int idx = cell_to_index(move);
-      if (idx < 0 || board[idx] != 0) continue;
+    // ===== INPUT HANDLING =====
+    if (mode == MODE_AI_START || mode == MODE_HUMAN_START) {
+      if (!game_over && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+        TTacCell move = mouse_to_cell(GetMouseX(), GetMouseY(), cell_w, cell_h);
+        int idx = cell_to_index(move);
+        if (idx < 0 || board[idx] != 0) continue;
 
-      board[idx] = 1;
-      std::cout << "[Human] plays: " << cell_name(move) << "\n";
+        board[idx] = 1; // human = red
+        TTacCell ai_move = ttac_play(game, move);
+        int ai_idx = cell_to_index(ai_move);
+        if (ai_idx >= 0) board[ai_idx] = 2;
 
-      TTacCell ai_move = ttac_play(game, move);
-
-      if (ttac_game_state(game) != TTAC_GAME_PENDING) {
-        game_over = true;
-        print_winner(game);
+        if (ttac_game_state(game) != TTAC_GAME_PENDING) game_over = true;
       }
+    } else if (mode == MODE_BOX) {
+      TTacCell cell = mouse_to_cell(GetMouseX(), GetMouseY(), cell_w, cell_h);
+      int idx = cell_to_index(cell);
+      if (idx < 0) continue;
 
-      int ai_idx = cell_to_index(ai_move);
-      if (ai_idx >= 0) {
-        board[ai_idx] = 2;
-        std::cout << "[AI] plays: " << cell_name(ai_move) << "\n";
-      }
+      if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) board[idx] = 1;
+      if (IsMouseButtonPressed(MOUSE_RIGHT_BUTTON)) board[idx] = 2;
+      if (IsMouseButtonPressed(MOUSE_MIDDLE_BUTTON)) board[idx] = 0;
     }
 
-    // Reset controls
-    if (IsKeyPressed(KEY_R)) {
-      reset_game(true); // AI starts
-    }
-    if (IsKeyPressed(KEY_H)) {
-      reset_game(false); // Human starts
-    }
+    // ===== CONTROLS =====
+    if (IsKeyPressed(KEY_R)) start_game(mode);             // restart same mode
+    if (IsKeyPressed(KEY_A)) start_game(MODE_AI_START);    // AI starts
+    if (IsKeyPressed(KEY_H)) start_game(MODE_HUMAN_START); // Human starts
+    if (IsKeyPressed(KEY_B)) start_game(MODE_BOX);         // box mode
+    if (IsKeyPressed(KEY_D)) mode = MODE_BOX;              // box mode
   }
 
   CloseWindow();
