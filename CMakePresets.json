@@ -7,8 +7,6 @@
       "binaryDir": "${sourceDir}/build/default",
       "cacheVariables": {
         "CMAKE_RUNTIME_OUTPUT_DIRECTORY": "${sourceDir}/bin",
-        "CMAKE_ARCHIVE_OUTPUT_DIRECTORY": "${sourceDir}/lib",
-        "CMAKE_LIBRARY_OUTPUT_DIRECTORY": "${sourceDir}/lib",
         "CMAKE_C_COMPILER_LAUNCHER": "ccache",
         "CMAKE_CXX_COMPILER_LAUNCHER": "ccache"
       }
@@ -30,8 +28,7 @@
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release",
         "TTAC_EXAMPLE": "ON",
-        "CMAKE_RUNTIME_OUTPUT_DIRECTORY": "${sourceDir}/web",
-        "CMAKE_ARCHIVE_OUTPUT_DIRECTORY": "${sourceDir}/web/lib"
+        "CMAKE_RUNTIME_OUTPUT_DIRECTORY": "${sourceDir}/web/ttac"
       }
     },
     {

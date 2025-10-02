@@ -9,4 +9,6 @@ imgui.ini
 *.data*
 *.svg*
 main/
-web/
+*.js
+*.wasm
+ttac/

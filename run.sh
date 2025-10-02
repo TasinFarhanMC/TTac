@@ -32,7 +32,7 @@ elif [[ "$key" == "w" ]]; then
   echo "Running cmake configuration..."
   emcmake cmake --preset web -G Ninja
   echo "Building..."
-  emcmake cmake --build --preset web
+  cmake --build --preset web
 elif [[ "$key" == "g" ]]; then
   echo "Building..."
   cmake --build --preset debug
