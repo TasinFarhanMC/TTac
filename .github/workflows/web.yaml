@@ -46,11 +46,15 @@ jobs:
         run: |
           emcmake cmake -B build \
                 -DTTAC_EXAMPLE=ON \
-                -DCMAKE_BUILD_TYPE=Release \
-                -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=html
+                -DCMAKE_BUILD_TYPE=Release
 
       - name: Build Web
         run: cmake --build build
+
+      - name: Move build files to output directory
+        run: |
+          cp build/*.js html/
+          cp build/*.wasm html/
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
