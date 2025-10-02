@@ -4,7 +4,7 @@ permissions:
   contents: read
   id-token: write
   pages: write
-  
+
 on:
   push:
     branches: [main]
@@ -14,9 +14,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # ----- Checkout repository -----
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # ----- CPM cache -----
       - name: Set CPM_SOURCE_CACHE
         shell: bash
         run: |
@@ -30,44 +32,46 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-cpm-
 
+      # ----- Setup ccache -----
       - name: Setup ccache
         uses: Chocobo1/setup-ccache-action@v1
         with:
           remove_stale_cache: false
 
-      # ===== Setup Emscripten =====
+      # ----- Setup Emscripten -----
       - name: Setup emsdk
         uses: mymindstorm/setup-emsdk@v14
         with:
           actions-cache-folder: 'emsdk-cache'
 
-      # ===== Configure CMake for Web =====
+      # ----- Configure CMake -----
       - name: Configure with CMake (Web)
         run: |
+          mkdir -p build
           emcmake cmake -B build \
-                -DTTAC_EXAMPLE=ON \
-                -DCMAKE_BUILD_TYPE=Release
+            -DTTAC_EXAMPLE=ON \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}/html
 
+      # ----- Build -----
       - name: Build Web
-        run: cmake --build build
+        run: cmake --build build --target ttac
 
-      - name: Move build files to output directory
-        run: |
-          cp build/*.js html/
-          cp build/*.wasm html/
+      # ----- List output for debugging -----
+      - name: List html folder
+        run: ls -R html
 
+      # ----- Upload artifact to GitHub Pages -----
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: html
 
   deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}/ttac
     needs: build
     runs-on: ubuntu-latest
-    name: Deploy
+    environment:
+      name: github-pages
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
