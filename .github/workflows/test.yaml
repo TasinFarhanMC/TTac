@@ -12,7 +12,8 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
-      os: ubuntu-latest
+      matrix:
+        os: [ubuntu-latest]
 
     steps:
       - name: Checkout repository
@@ -50,4 +51,3 @@ jobs:
       - name: Run tests
         working-directory: build
         run: ctest --output-on-failure
-

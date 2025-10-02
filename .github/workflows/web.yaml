@@ -1,11 +1,16 @@
 name: Build and Deploy to GitHub Pages
 
+permissions:
+  contents: read
+  id-token: write
+  pages: write
+  
 on:
   push:
     branches: [main]
 
 jobs:
-  build-deploy:
+  build:
     runs-on: ubuntu-latest
 
     steps:
@@ -56,7 +61,7 @@ jobs:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}/ttac
-    needs: build-deploy
+    needs: build
     runs-on: ubuntu-latest
     name: Deploy
     steps:
