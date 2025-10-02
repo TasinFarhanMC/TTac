@@ -1,0 +1,65 @@
+name: Build and Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set CPM_SOURCE_CACHE
+        shell: bash
+        run: |
+          echo "CPM_SOURCE_CACHE=${{ github.workspace }}/.cpm_cache" >> $GITHUB_ENV
+
+      - name: Restore CPM cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.CPM_SOURCE_CACHE }}
+          key: ${{ runner.os }}-cpm-${{ hashFiles('**/CMakeLists.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-cpm-
+
+      - name: Setup ccache
+        uses: Chocobo1/setup-ccache-action@v1
+        with:
+          remove_stale_cache: false
+
+      # ===== Setup Emscripten =====
+      - name: Setup emsdk
+        uses: mymindstorm/setup-emsdk@v14
+        with:
+          actions-cache-folder: 'emsdk-cache'
+
+      # ===== Configure CMake for Web =====
+      - name: Configure with CMake (Web)
+        run: |
+          emcmake cmake -B build \
+                -DTTAC_EXAMPLE=ON \
+                -DCMAKE_BUILD_TYPE=Release \
+                -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=html
+
+      - name: Build Web
+        run: cmake --build build
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: html
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}/ttac
+    needs: build-deploy
+    runs-on: ubuntu-latest
+    name: Deploy
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

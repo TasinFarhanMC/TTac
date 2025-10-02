@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8" />
+    <title>TTac Web</title>
+    <style>
+      body,
+      html {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        background: black;
+      }
+      canvas {
+        width: 100%;
+        height: 100%;
+        display: block;
+        background: black;
+      }
+    </style>
+  </head>
+  <base href="/ttac/" />
+  <body>
+    <script>
+      var Module = {
+        canvas: (function () {
+          var c = document.createElement("canvas");
+          c.id = "canvas";
+          // disable pointer lock
+          c.addEventListener("click", (e) => e.preventDefault());
+          document.body.appendChild(c);
+          return c;
+        })(),
+      };
+    </script>
+    <script src="ttac_raylib.js"></script>
+  </body>
+</html>
