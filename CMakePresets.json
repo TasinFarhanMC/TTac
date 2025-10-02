@@ -28,7 +28,7 @@
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release",
         "TTAC_EXAMPLE": "ON",
-        "CMAKE_RUNTIME_OUTPUT_DIRECTORY": "${sourceDir}/web/ttac"
+        "CMAKE_RUNTIME_OUTPUT_DIRECTORY": "${sourceDir}/web"
       }
     },
     {
