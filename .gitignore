@@ -9,3 +9,4 @@ imgui.ini
 *.data*
 *.svg*
 main/
+web/

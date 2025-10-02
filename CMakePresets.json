@@ -23,6 +23,18 @@
       }
     },
     {
+      "name": "web",
+      "description": "Web build",
+      "binaryDir": "${sourceDir}/build/web",
+      "inherits": "default",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "TTAC_EXAMPLE": "ON",
+        "CMAKE_RUNTIME_OUTPUT_DIRECTORY": "${sourceDir}/web",
+        "CMAKE_ARCHIVE_OUTPUT_DIRECTORY": "${sourceDir}/web/lib"
+      }
+    },
+    {
       "name": "debug",
       "description": "Debug build",
       "binaryDir": "${sourceDir}/build/debug",
@@ -45,6 +57,11 @@
       "name": "debug",
       "hidden": false,
       "configurePreset": "debug"
+    },
+    {
+      "name": "web",
+      "hidden": false,
+      "configurePreset": "web"
     }
   ]
 }

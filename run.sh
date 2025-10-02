@@ -16,11 +16,23 @@ if [[ "$key" == "r" ]]; then
   cmake --build --preset debug
   echo "Running..."
   ./bin/tests
+elif [[ "$key" == "E" ]]; then
+  echo "Running cmake configuration..."
+  cmake --preset debug -G Ninja
+  echo "Building..."
+  cmake --build --preset debug
+  echo "Running Example..."
+  ./bin/ttac_raylib
 elif [[ "$key" == "e" ]]; then
   echo "Building..."
   cmake --build --preset debug
   echo "Running Example..."
   ./bin/ttac_raylib
+elif [[ "$key" == "w" ]]; then
+  echo "Running cmake configuration..."
+  emcmake cmake --preset web -G Ninja
+  echo "Building..."
+  emcmake cmake --build --preset web
 elif [[ "$key" == "g" ]]; then
   echo "Building..."
   cmake --build --preset debug
