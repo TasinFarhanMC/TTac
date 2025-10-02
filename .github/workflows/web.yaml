@@ -55,7 +55,7 @@ jobs:
 
       # ----- Build -----
       - name: Build Web
-        run: cmake --build build --target ttac
+        run: cmake --build build --target ttac_raylib
 
       # ----- List output for debugging -----
       - name: List html folder
