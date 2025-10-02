@@ -8,13 +8,7 @@ on:
 
 jobs:
   build-test:
-    name: ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest]
-
+    runs-on: ubuntu-latest   # no matrix needed
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -42,8 +36,8 @@ jobs:
           cmake -B build \
                 -DTTAC_TESTS=ON \
                 -DCMAKE_BUILD_TYPE=Debug \
-                -DCMAKE_C_LAUNCER=ccache \
-                -DCMAKE_CXX_LAUNCER=ccache
+                -DCMAKE_C_LAUNCHER=ccache \
+                -DCMAKE_CXX_LAUNCHER=ccache
 
       - name: Build
         run: cmake --build build
