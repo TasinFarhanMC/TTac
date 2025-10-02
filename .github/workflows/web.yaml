@@ -53,14 +53,14 @@ jobs:
         run: cmake --build --preset web --target ttac_raylib
 
       # ----- List output for debugging -----
-      - name: List html folder
-        run: ls -R html
+      - name: List web folder
+        run: ls -R web
 
       # ----- Upload artifact to GitHub Pages -----
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: html
+          path: web
 
   deploy:
     needs: build
