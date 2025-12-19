@@ -16,17 +16,17 @@ typedef struct {
   TTacBranch branch;
 } TTacGame;
 
-#define TTAC_TOP_LEFT 0b1010
-#define TTAC_TOP_RIGHT 0b1001
-#define TTAC_BOTTOM_RIGHT 0b1100
-#define TTAC_BOTTOM_LEFT 0b1111
+#define TTAC_TOP_LEFT 0b1000
+#define TTAC_TOP_RIGHT 0b1101
+#define TTAC_BOTTOM_LEFT 0b1011
+#define TTAC_BOTTOM_RIGHT 0b1110
 
-#define TTAC_TOP 0b0101
-#define TTAC_BOTTOM 0b0011
-#define TTAC_LEFT 0b0000
-#define TTAC_RIGHT 0b0110
+#define TTAC_TOP 0b0010
+#define TTAC_BOTTOM 0b0100
+#define TTAC_LEFT 0b0111
+#define TTAC_RIGHT 0b0001
 
-#define TTAC_CENTER 0b0001
+#define TTAC_CENTER 0b1111
 
 #define TTAC_GAME_PENDING 0
 #define TTAC_GAME_DRAW 1
