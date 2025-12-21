@@ -91,7 +91,7 @@ TTacByte ttac_random() { return 0; }
 #endif // TTAC_C_RANDOM
 
 static TTacCell ttac_branch_ai(void *game, TTacCell move);
-static TTacCell ttac_branch_player(void *game, TTacCell move) {};
+static TTacCell ttac_branch_player(void *game, TTacCell move) { return 0; };
 
 void ttac_create_game(TTacGame *game, TTacBool ai_start) {
   game->state = TTAC_GAME_PENDING;

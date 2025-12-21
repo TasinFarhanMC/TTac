@@ -59,14 +59,14 @@ TEST_CASE("LINE OPP", "[GENERATE][LINE OPP]") {
 }
 
 inline void REQUIRE_GEN_ADJ_LINE(TTacCell corner, TTacCell edge, TTacCell expect) {
-  TTacCell result = ADJ_LINE(corner, edge);
+  TTacCell result = LINE_ADJ(corner, edge);
 
   INFO("corner: " << cell_name(corner) << " [" << std::bitset<4>(corner) << "]");
   INFO("edge: " << cell_name(edge) << " [" << std::bitset<4>(edge) << "]");
   INFO("result: " << cell_name(result) << " [" << std::bitset<4>(result) << "]");
   INFO("expected: " << cell_name(expect) << " [" << std::bitset<4>(result) << "]");
 
-  REQUIRE(ADJ_LINE(corner, edge) == expect);
+  REQUIRE(LINE_ADJ(corner, edge) == expect);
 }
 
 TEST_CASE("ADJACENT LINE", "[ADJACENT LINE]") {

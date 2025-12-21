@@ -12,9 +12,10 @@ add_library(TTac STATIC "${SRC_DIR}/ttac.c")
 target_include_directories(TTac PUBLIC ${INCLUDE_DIRS})
 
 function(add_macro name)
-  if(DEFINED ${name})
-    set(value "${${name}}")
-    target_compile_definitions(TTac PUBLIC "${name}=${value}")
+  option(${name} "Enable ${name}" OFF)
+
+  if(${name})
+    target_compile_definitions(TTac PUBLIC ${name}=1)
   endif()
 endfunction()
 
