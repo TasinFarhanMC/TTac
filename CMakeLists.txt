@@ -8,10 +8,18 @@ set(SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src")
 set(INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/include")
 set(TEST_DIR "${CMAKE_CURRENT_SOURCE_DIR}/tests")
 
-file(GLOB_RECURSE SRC_FILES "${SRC_DIR}/*.c" "${SRC_DIR}/*.cpp")
-
-add_library(TTac STATIC "${SRC_FILES}")
+add_library(TTac STATIC "${SRC_DIR}/ttac.c")
 target_include_directories(TTac PUBLIC ${INCLUDE_DIRS})
+
+function(add_macro name)
+  if(DEFINED ${name})
+    set(value "${${name}}")
+    target_compile_definitions(TTac PUBLIC "${name}=${value}")
+  endif()
+endfunction()
+
+add_macro(TTAC_C_RANDOM)
+add_macro(TTAC_USER_RANDOM)
 
 if(TTAC_TESTS)
   enable_language(CXX)

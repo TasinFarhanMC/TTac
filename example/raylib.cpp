@@ -1,3 +1,4 @@
+#include <iostream>
 #if defined(PLATFORM_WEB)
 #include <emscripten/emscripten.h>
 #endif
@@ -102,47 +103,75 @@ bool mouse_in_rect(int x, int y, int w, int h) {
 }
 
 void toggle_mode() {
-  if (g_state.mode == MODE_AI_START) {
+  if (g_state.mode == MODE_AI_START)
     start_game(MODE_HUMAN_START);
-  } else if (g_state.mode == MODE_HUMAN_START) {
+  else if (g_state.mode == MODE_HUMAN_START)
     start_game(MODE_BOX);
-  } else {
+  else
     start_game(MODE_AI_START);
-  }
 }
 
-// Main loop
+// ===== MAIN LOOP =====
 void game_loop() {
+  // Update current window size
   g_state.win_w = GetScreenWidth();
   g_state.win_h = GetScreenHeight();
 
   int cell_w = g_state.win_w / GRID_SIZE;
   int cell_h = g_state.win_h / GRID_SIZE;
 
+#if defined(PLATFORM_WEB)
+  // Scale mouse coords to match actual canvas
+  float scale_x = (float)GetRenderWidth() / g_state.win_w;
+  float scale_y = (float)GetRenderHeight() / g_state.win_h;
+  int mouse_x = GetMouseX() * scale_x;
+  int mouse_y = GetMouseY() * scale_y;
+#else
+  int mouse_x = GetMouseX();
+  int mouse_y = GetMouseY();
+#endif
+
   // ===== INPUT HANDLING =====
-  if (g_state.mode == MODE_AI_START || g_state.mode == MODE_HUMAN_START) {
-    if (!g_state.game_over && (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) || IsGestureDetected(GESTURE_TAP))) {
-      TTacCell move = mouse_to_cell(GetMouseX(), GetMouseY(), cell_w, cell_h);
+  if ((g_state.mode == MODE_AI_START || g_state.mode == MODE_HUMAN_START) && !g_state.game_over) {
+    if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) || IsGestureDetected(GESTURE_TAP)) {
+      TTacCell move = mouse_to_cell(mouse_x, mouse_y, cell_w, cell_h);
       int idx = cell_to_index(move);
       if (idx >= 0 && g_state.board[idx] == 0) {
         g_state.board[idx] = 1; // human
         TTacCell ai_move = ttac_play(g_state.game, move);
         int ai_idx = cell_to_index(ai_move);
         if (ai_idx >= 0) g_state.board[ai_idx] = 2;
-        if (ttac_game_state(g_state.game) != TTAC_GAME_PENDING) g_state.game_over = true;
+
+        // Check game result
+        TTacByte state = ttac_game_state(g_state.game);
+        if (state != TTAC_GAME_PENDING) {
+          g_state.game_over = true;
+          switch (state) {
+          case TTAC_GAME_DRAW:
+            std::cout << "Draw!" << std::endl;
+            break;
+          case TTAC_GAME_AI_WIN:
+            std::cout << "AI wins!" << std::endl;
+            break;
+          case TTAC_GAME_AI_LOSS:
+            std::cout << "You win!" << std::endl;
+            break;
+          default:
+            break;
+          }
+        }
       }
     }
   } else if (g_state.mode == MODE_BOX) {
-    TTacCell cell = mouse_to_cell(GetMouseX(), GetMouseY(), cell_w, cell_h);
+    TTacCell cell = mouse_to_cell(mouse_x, mouse_y, cell_w, cell_h);
     int idx = cell_to_index(cell);
     if (idx >= 0 && (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) || IsGestureDetected(GESTURE_TAP))) {
-      // Cycle: empty -> blue -> red -> empty
       if (g_state.board[idx] == 0)
-        g_state.board[idx] = 2; // empty → blue
+        g_state.board[idx] = 2;
       else if (g_state.board[idx] == 2)
-        g_state.board[idx] = 1; // blue → red
+        g_state.board[idx] = 1;
       else if (g_state.board[idx] == 1)
-        g_state.board[idx] = 0; // red → empty
+        g_state.board[idx] = 0;
     }
   }
 
@@ -154,7 +183,7 @@ void game_loop() {
   if (IsKeyPressed(KEY_D)) g_state.mode = MODE_BOX;
 
   // ===== TOGGLE BUTTON =====
-  int btn_w = 160; // bigger for mobile
+  int btn_w = 160;
   int btn_h = 50;
   int btn_x = g_state.win_w - btn_w - 10;
   int btn_y = 10;
@@ -173,8 +202,9 @@ void game_loop() {
   }
 
   // Draw symbols
-  for (int i = 0; i < 9; ++i)
+  for (int i = 0; i < 9; ++i) {
     if (g_state.board[i] != 0) draw_symbol(i, g_state.board[i], cell_w, cell_h);
+  }
 
   // Draw mode text
   std::string mode_text = (g_state.mode == MODE_AI_START) ? "Mode: AI Start" : (g_state.mode == MODE_HUMAN_START) ? "Mode: Human Start" : "Mode: Box";
@@ -194,11 +224,12 @@ int main() {
   InitWindow(g_state.win_w, g_state.win_h, "TTac AI / Human / Box Mode");
   SetTargetFPS(60);
 
-  start_game(MODE_AI_START);
-
-#if defined(EMSCRIPTEN)
+#if defined(PLATFORM_WEB)
+  // Force initial canvas size to match window
+  SetCanvasSize(g_state.win_w, g_state.win_h);
   emscripten_set_main_loop(game_loop, 0, 1);
 #else
+  start_game(MODE_AI_START);
   while (!WindowShouldClose()) { game_loop(); }
 #endif
 
