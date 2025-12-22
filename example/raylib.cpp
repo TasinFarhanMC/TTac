@@ -72,6 +72,7 @@ struct GameState {
   bool game_over = false;
   bool show_help = false;
   bool dark_theme = false;
+  bool ignore_clicks_this_frame = false;
   Mode mode = MODE_AI_START;
   int win_w = 600;
   int win_h = 600;
@@ -208,7 +209,8 @@ void draw_game_over_popup() {
   DrawRectangleLines(btn_x, btn_y, btn_w, btn_h, BLACK);
   DrawText("Play Again", btn_x + 10, btn_y + 10, 20, text_color);
 
-  if ((IsMouseButtonPressed(MOUSE_LEFT_BUTTON) || IsGestureDetected(GESTURE_TAP)) && hovered) start_game(g_state.mode);
+  if ((IsMouseButtonPressed(MOUSE_LEFT_BUTTON) || IsGestureDetected(GESTURE_TAP)) && hovered && !g_state.ignore_clicks_this_frame)
+    start_game(g_state.mode);
 }
 
 // Main loop
@@ -233,7 +235,11 @@ void game_loop() {
         TTacCell ai_move = ttac_play(g_state.game, move);
         int ai_idx = cell_to_index(ai_move);
         if (ai_idx >= 0) g_state.board[ai_idx] = 2;
-        if (ttac_game_state(g_state.game) != TTAC_GAME_PENDING) g_state.game_over = true;
+
+        if (ttac_game_state(g_state.game) != TTAC_GAME_PENDING) {
+          g_state.game_over = true;
+          g_state.ignore_clicks_this_frame = true;
+        }
       }
     }
   }
