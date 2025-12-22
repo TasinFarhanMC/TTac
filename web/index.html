@@ -23,8 +23,6 @@
 
       canvas {
         display: block;
-        width: 100vw;
-        height: 100vh;
         touch-action: none;
       }
     </style>
@@ -35,22 +33,7 @@
 
     <script>
       var Module = {
-        canvas: (function () {
-          const canvas = document.getElementById("canvas");
-
-          function resizeCanvas() {
-            const dpr = window.devicePixelRatio || 1;
-            const rect = canvas.getBoundingClientRect();
-
-            canvas.width = Math.round(rect.width * dpr);
-            canvas.height = Math.round(rect.height * dpr);
-          }
-
-          window.addEventListener("resize", resizeCanvas);
-          resizeCanvas();
-
-          return canvas;
-        })(),
+        canvas: document.getElementById("canvas"),
 
         onRuntimeInitialized() {
           console.log("WASM loaded");

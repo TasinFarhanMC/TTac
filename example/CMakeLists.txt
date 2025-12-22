@@ -21,11 +21,10 @@ cpmaddpackage("gh:raysan5/raylib#5.5")
 # ======================================================
 # Add executable
 # ======================================================
-add_executable(ttac_raylib "${CMAKE_CURRENT_SOURCE_DIR}/raylib.cpp"
-                           "${CMAKE_CURRENT_SOURCE_DIR}/../src/ttac.c")
+add_executable(ttac_raylib "${CMAKE_CURRENT_SOURCE_DIR}/raylib.cpp")
 
 # Link raylib
-target_link_libraries(ttac_raylib PRIVATE raylib)
+target_link_libraries(ttac_raylib PRIVATE TTac raylib)
 
 # Include project headers
 target_include_directories(ttac_raylib

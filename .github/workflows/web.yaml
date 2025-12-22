@@ -42,7 +42,7 @@ jobs:
       - name: Setup emsdk
         uses: mymindstorm/setup-emsdk@v14
         with:
-          actions-cache-folder: '$EMSDK'
+          actions-cache-folder: 'emsdk-cache'
 
       # ----- Configure CMake -----
       - name: Configure with CMake (Web)
