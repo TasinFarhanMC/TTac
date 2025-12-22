@@ -271,6 +271,7 @@ void game_loop() {
   // Draw overlays
   if (g_state.show_help) draw_help();
   if (g_state.game_over) draw_game_over_popup();
+  g_state.ignore_clicks_this_frame = false;
 
   EndDrawing();
 }
