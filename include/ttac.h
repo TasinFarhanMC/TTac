@@ -174,7 +174,7 @@ static TTacCell ttac_branch_ai_n2(void *game, TTacCell move) {
 static TTacCell ttac_branch_ai_center_n1(void *game, TTacCell move);
 static TTacCell ttac_branch_ai_center(void *game, TTacCell move) {
   TTacGame *game_ptr = (TTacGame *)game;
-  const TTacCell c1 = game_ptr->c1;
+  TTacCell c1 = game_ptr->c1;
   const TTacCell c2 = game_ptr->c2;
   const TTacCell result = TTAC_OPP_SAME(move);
 
@@ -187,6 +187,8 @@ static TTacCell ttac_branch_ai_center(void *game, TTacCell move) {
   }
 
   game_ptr->branch = ttac_branch_ai_center_n1;
+
+  c1 = TTAC_IS_ADJ_DIFF(result, c2) ? c2 : c1;
   game_ptr->c2 = (TTAC_ADJ1_DIFF(c1) == result) ? TTAC_ADJ2_DIFF(c1) : TTAC_ADJ1_DIFF(c1);
   game_ptr->c1 = TTAC_LINE(c1, result);
   return result;
