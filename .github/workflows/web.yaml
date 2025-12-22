@@ -50,7 +50,7 @@ jobs:
 
       # ----- Build -----
       - name: Build Web
-        run: cmake --build --preset web --target ttac_raylib -DTTAC_C_RANDOM
+        run: cmake --build --preset web --target ttac_raylib
 
       # ----- List output for debugging -----
       - name: List web folder
