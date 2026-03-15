@@ -31,14 +31,12 @@ if(TTAC_TESTS)
   target_include_directories(tests PRIVATE ${TEST_DIR})
 
   if(${CPM_USE_LOCAL_PACKAGES})
-    find_package(Catch2 3 REQUIRED QUIET)
+    find_package(Catch2 3)
   endif()
 
   include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/get_cpm.cmake)
-  if(NOT ${Catch2_FOUND})
-    cpmaddpackage("gh:catchorg/Catch2@3.9.0")
-    list(APPEND CMAKE_MODULE_PATH "${Catch2_SOURCE_DIR}/extras")
-  endif()
+  cpmaddpackage("gh:catchorg/Catch2@3.9.0")
+  list(APPEND CMAKE_MODULE_PATH "${Catch2_SOURCE_DIR}/extras")
 
   enable_testing()
   include(Catch)
