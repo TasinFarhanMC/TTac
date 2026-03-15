@@ -62,14 +62,9 @@ struct TTacGame {
 #define TTAC_IS_SAME(a, b) !((a ^ b) & 0b1000)
 #define TTAC_IS_DIFF(a, b) ((a ^ b) & 0b1000)
 
+#define TTAC_MIDDLE(a, b) (TTAC_IS_ADJ_DIFF(TTAC_ADJ1_DIFF(a), b) ? TTAC_ADJ1_DIFF(a) : TTAC_ADJ1_DIFF(b))
 #define TTAC_ADJ_GEN_ADJ(a, b) (TTAC_IS_ADJ_DIFF(a, TTAC_ADJ1_SAME(b)) ? TTAC_ADJ1_SAME(b) : TTAC_ADJ2_SAME(b))
 #define TTAC_OPP_GEN_ADJ(a, b) (TTAC_IS_OPP_DIFF(a, TTAC_ADJ1_SAME(b)) ? TTAC_ADJ1_SAME(b) : TTAC_ADJ2_SAME(b))
-
-#define TTAC_LINE(corner, edge) (TTAC_IS_ADJ_DIFF(TTAC_ADJ1_SAME(corner), edge) ? TTAC_ADJ1_SAME(corner) : TTAC_ADJ2_SAME(corner))
-#define TTAC_LINE_ADJ(corner, edge) (TTAC_IS_ADJ_DIFF(TTAC_ADJ1_SAME(corner), edge) ? TTAC_ADJ1_SAME(corner) : TTAC_ADJ2_SAME(corner))
-#define TTAC_LINE_OPP(corner, edge) (TTAC_IS_ADJ_DIFF(TTAC_ADJ1_SAME(corner), edge) ? TTAC_ADJ2_SAME(corner) : TTAC_ADJ1_SAME(corner))
-
-#define TTAC_MIDDLE(a, b) (TTAC_IS_ADJ_DIFF(TTAC_ADJ1_DIFF(a), b) ? TTAC_ADJ1_DIFF(a) : TTAC_ADJ1_DIFF(b))
 
 extern void ttac_create_game(TTacGame *game, TTacBool ai_start);
 #define ttac_play(game, move) game.branch(&game, move)
@@ -150,6 +145,7 @@ static TTacCell ttac_branch_ai_next(TTacGame *game, TTacCell move) {
   // Center move
   if (move == TTAC_CENTER) {
     game->branch = ttac_branch_ai_center;
+
     game->c2 = TTAC_OPP_SAME(control);
     return game->c2;
   }
@@ -168,8 +164,8 @@ static TTacCell ttac_branch_ai_next(TTacGame *game, TTacCell move) {
   const TTacCell output = is_corner
                ? (adjacent ? TTAC_OPP_SAME(move)
                            : TTAC_ADJ1_SAME(move))
-               : (adjacent ? TTAC_LINE_OPP(control, move)
-                           : TTAC_LINE_ADJ(control, move));
+               : (adjacent ? TTAC_OPP_GEN_ADJ(move, control)
+                           : TTAC_ADJ_GEN_ADJ(move, control));
   // clang-format on
 
   game->c1 = adjacent ? output : control;
@@ -211,7 +207,7 @@ static TTacCell ttac_branch_ai_center(TTacGame *game, TTacCell move) {
 
   game->branch = ttac_branch_ai_center_next;
 
-  game->c1 = TTAC_LINE(c1, result);
+  game->c1 = TTAC_ADJ_GEN_ADJ(result, c1);
   game->c2 = (TTAC_ADJ1_DIFF(c1) == result) ? TTAC_ADJ2_DIFF(c1) : TTAC_ADJ1_DIFF(c1);
   return result;
 }
@@ -241,8 +237,9 @@ TTAC_BRANCH_DEF(player_center_opp_edge);
 
 static TTacCell ttac_branch_player(TTacGame *game, TTacCell move) {
   if (TTAC_IS_CORNER(move)) {
-    game->c1 = move;
     game->branch = ttac_branch_player_center;
+
+    game->c1 = move;
     return TTAC_CENTER;
   }
 
@@ -284,7 +281,7 @@ static TTacCell ttac_branch_player_center(TTacGame *game, TTacCell move) {
 
   game->branch = ttac_branch_player_center_opp_edge;
 
-  const TTacCell result = TTAC_LINE_ADJ(control, move);
+  const TTacCell result = TTAC_ADJ_GEN_ADJ(move, control);
   game->c1 = TTAC_OPP_SAME(move);
   game->c2 = TTAC_OPP_SAME(result);
   return result;
@@ -300,6 +297,7 @@ static TTacCell ttac_branch_player_center_opp_corner(TTacGame *game, TTacCell mo
   }
 
   game->branch = ttac_branch_win_or_draw;
+
   game->c1 = TTAC_OPP_SAME(c2);
   game->c2 = TTAC_ADJ1_SAME(c1);
   return c2;
@@ -315,6 +313,7 @@ static TTacCell ttac_branch_player_center_adj_corner(TTacGame *game, TTacCell mo
   }
 
   game->branch = ttac_branch_win_or_draw;
+
   game->c1 = TTAC_OPP_SAME(c2);
   game->c2 = TTAC_MIDDLE(c1, c2);
   return c2;

@@ -13,7 +13,7 @@ build:
     cmake --build --preset debug
 
 # Run tests
-run: build
+test: build
     @echo "Running Tests..."
     ./bin/tests
 
