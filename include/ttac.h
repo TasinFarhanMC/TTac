@@ -177,7 +177,7 @@ static TTacCell ttac_branch_ai_end(TTacGame *game, TTacCell move) {
 }
 
 static TTacCell ttac_branch_ai_center(TTacGame *game, TTacCell move) {
-  TTacCell c1 = game->c1;
+  const TTacCell c1 = game->c1;
   const TTacCell c2 = game->c2;
   const TTacCell result = TTAC_OPP_SAME(move);
 
@@ -191,9 +191,8 @@ static TTacCell ttac_branch_ai_center(TTacGame *game, TTacCell move) {
 
   game->branch = ttac_branch_ai_center_next;
 
-  c1 = TTAC_IS_ADJ_DIFF(result, c2) ? c2 : c1;
-  game->c2 = (TTAC_ADJ1_DIFF(c1) == result) ? TTAC_ADJ2_DIFF(c1) : TTAC_ADJ1_DIFF(c1);
   game->c1 = TTAC_LINE(c1, result);
+  game->c2 = (TTAC_ADJ1_DIFF(c1) == result) ? TTAC_ADJ2_DIFF(c1) : TTAC_ADJ1_DIFF(c1);
   return result;
 }
 static TTacCell ttac_branch_ai_center_next(TTacGame *game, TTacCell move) {
@@ -208,10 +207,7 @@ static TTacCell ttac_branch_ai_center_next(TTacGame *game, TTacCell move) {
   return control;
 }
 static TTacCell ttac_branch_ai_center_end(TTacGame *game, TTacCell move) {
-  const TTacCell control = game->c2;
-
-  game->state = (move == control) ? TTAC_GAME_DRAW : TTAC_GAME_AI_WIN;
-
+  game->state = (move == game->c2) ? TTAC_GAME_DRAW : TTAC_GAME_AI_WIN;
   return TTAC_OPP_SAME(move);
 }
 
