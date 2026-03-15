@@ -82,14 +82,13 @@ extern void ttac_create_game(TTacGame *game, TTacBool ai_start);
 #elif defined(TTAC_USER_RANDOM)
 #define ttac_random TTAC_USER_RANDOM
 #else
-#define ttac_random 0
+#define ttac_random() 0
 #endif // TTAC_C_RANDOM
 
 static TTacCell ttac_branch_ai(void *game, TTacCell move);
 static TTacCell ttac_branch_player(void *game, TTacCell move);
 
 void ttac_create_game(TTacGame *game, TTacBool ai_start) {
-#define ttac_random random
   game->state = TTAC_GAME_PENDING;
   game->branch = ai_start ? ttac_branch_ai : ttac_branch_player;
 }
@@ -232,6 +231,8 @@ static TTacCell ttac_branch_player(void *game, TTacCell move) {
     game_ptr->branch = ttac_branch_player_center;
     return TTAC_CENTER;
   }
+
+  return TTAC_CENTER;
 }
 
 static TTacCell ttac_branch_player_center_opp_corner(void *game, TTacCell move);
