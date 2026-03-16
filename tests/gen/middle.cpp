@@ -1,14 +1,14 @@
 #include <test.hpp>
 
-inline void REQUIRE_GEN_MIDDLE(TTacCell corner1, TTacCell corner2, TTacCell expect) {
-  TTacCell result = MIDDLE(corner1, corner2);
+inline void REQUIRE_GEN_MIDDLE(TTacCell a, TTacCell b, TTacCell expect) {
+  TTacCell result = MIDDLE(a, b);
 
-  INFO("corner 1: " << cell_name(corner1) << " [" << std::bitset<4>(corner1) << "]");
-  INFO("corner 2: " << cell_name(corner2) << " [" << std::bitset<4>(corner2) << "]");
+  INFO("a: " << cell_name(a) << " [" << std::bitset<4>(a) << "]");
+  INFO("b: " << cell_name(b) << " [" << std::bitset<4>(b) << "]");
   INFO("result: " << cell_name(result) << " [" << std::bitset<4>(result) << "]");
-  INFO("expected: " << cell_name(expect) << " [" << std::bitset<4>(result) << "]");
+  INFO("expected: " << cell_name(expect) << " [" << std::bitset<4>(expect) << "]");
 
-  REQUIRE(MIDDLE(corner1, corner2) == expect);
+  REQUIRE(result == expect);
 }
 
 TEST_CASE("MIDDLE", "[GENERATE][MIDDLE]") {

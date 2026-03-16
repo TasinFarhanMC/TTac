@@ -176,7 +176,7 @@ void draw_game_over_popup() {
 
   // Determine message
   const char *msg;
-  TTacByte state = ttac_game_state(g_state.game);
+  TTacByte state = g_state.game.state;
   if (state == TTAC_GAME_PLAYER_WIN)
     msg = "You Win!";
   else if (state == TTAC_GAME_PLAYER_LOSS)
@@ -229,7 +229,7 @@ void game_loop() {
         int ai_idx = cell_to_index(ai_move);
         if (ai_idx >= 0) g_state.board[ai_idx] = 2;
 
-        if (ttac_game_state(g_state.game) != TTAC_GAME_PENDING) {
+        if (g_state.game.state != TTAC_GAME_PENDING) {
           g_state.game_over = true;
           g_state.ignore_clicks_this_frame = true;
         }
