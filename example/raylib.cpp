@@ -1,14 +1,8 @@
-// Developers note:
-// The core library is built and tested by me but
-// this example is almost entirely made by chatgpt with some minor tweaks by me to make it work
-// as I am not good with guis we have to compensate but i will redo this eventually
-
 #if defined(PLATFORM_WEB)
 #include <emscripten/emscripten.h>
-
 EM_JS(bool, prefers_dark_mode, (), { return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches; });
-
 #endif
+
 #define TTAC_IMPLEMENTATION
 #define TTAC_C_RANDOM
 
@@ -21,31 +15,24 @@ EM_JS(bool, prefers_dark_mode, (), { return window.matchMedia && window.matchMed
 constexpr int GRID_SIZE = 3;
 constexpr int HEADER_HEIGHT = 60;
 
-enum Mode { MODE_AI_START, MODE_HUMAN_START };
+enum Mode {
+  MODE_AI_START,
+  MODE_HUMAN_START
+};
 
 // Map TTacCell to index
 int cell_to_index(TTacCell cell) {
   switch (cell) {
-  case TTAC_TOP_LEFT:
-    return 0;
-  case TTAC_TOP:
-    return 1;
-  case TTAC_TOP_RIGHT:
-    return 2;
-  case TTAC_LEFT:
-    return 3;
-  case TTAC_CENTER:
-    return 4;
-  case TTAC_RIGHT:
-    return 5;
-  case TTAC_BOTTOM_LEFT:
-    return 6;
-  case TTAC_BOTTOM:
-    return 7;
-  case TTAC_BOTTOM_RIGHT:
-    return 8;
-  default:
-    return -1;
+  case TTAC_TOP_LEFT: return 0;
+  case TTAC_TOP: return 1;
+  case TTAC_TOP_RIGHT: return 2;
+  case TTAC_LEFT: return 3;
+  case TTAC_CENTER: return 4;
+  case TTAC_RIGHT: return 5;
+  case TTAC_BOTTOM_LEFT: return 6;
+  case TTAC_BOTTOM: return 7;
+  case TTAC_BOTTOM_RIGHT: return 8;
+  default: return -1;
   }
 }
 
@@ -76,6 +63,10 @@ struct GameState {
   Mode mode = MODE_AI_START;
   int win_w = 600;
   int win_h = 600;
+
+  // Sandbox
+  bool sandbox_mode = false;
+  std::array<int, 9> sandbox_board {}; // 0=empty, 1=blue, 2=red
 };
 
 GameState g_state;
@@ -88,8 +79,8 @@ void draw_symbol(int index, int player, int cell_w, int cell_h) {
   int py = row * cell_h + cell_h / 2 + HEADER_HEIGHT;
   int radius = std::min(cell_w, cell_h) / 3;
 
-  if (player == 1) DrawCircle(px, py, radius, g_state.dark_theme ? (Color) {255, 0, 0, 255} : RED);
-  if (player == 2) DrawCircle(px, py, radius, g_state.dark_theme ? (Color) {0, 200, 255, 255} : BLUE);
+  if (player == 1) DrawCircle(px, py, radius, g_state.dark_theme ? (Color) {0, 200, 255, 255} : BLUE);
+  if (player == 2) DrawCircle(px, py, radius, g_state.dark_theme ? (Color) {255, 0, 0, 255} : RED);
 }
 
 // Start/reset game
@@ -97,6 +88,7 @@ void start_game(Mode start_mode) {
   g_state.board.fill(0);
   g_state.game_over = false;
   g_state.mode = start_mode;
+  g_state.sandbox_board.fill(0);
 
   if (start_mode == MODE_AI_START) {
     ttac_create_game(&g_state.game, true);
@@ -116,7 +108,7 @@ bool mouse_in_rect(int x, int y, int w, int h) {
 
 // Draw header with buttons
 void draw_header() {
-  int btn_w = 140, btn_h = 40, padding = 10;
+  int btn_w = 138, btn_h = 40, padding = 10;
   int x = padding, y = 10;
   Color text_color = g_state.dark_theme ? WHITE : BLACK;
 
@@ -151,6 +143,14 @@ void draw_header() {
   DrawRectangleLines(x, y, btn_w, btn_h, BLACK);
   DrawText(g_state.dark_theme ? "Dark" : "Light", x + 30, y + 10, 20, text_color);
   if ((IsMouseButtonPressed(MOUSE_LEFT_BUTTON) || IsGestureDetected(GESTURE_TAP)) && hovered_theme) g_state.dark_theme = !g_state.dark_theme;
+
+  // Sandbox button
+  x += btn_w + padding;
+  bool hovered_sandbox = mouse_in_rect(x, y, btn_w, btn_h);
+  DrawRectangle(x, y, btn_w, btn_h, hovered_sandbox ? LIGHTGRAY : GRAY);
+  DrawRectangleLines(x, y, btn_w, btn_h, BLACK);
+  DrawText(g_state.sandbox_mode ? "Sandbox ON" : "Sandbox OFF", x + 10, y + 10, 20, text_color);
+  if ((IsMouseButtonPressed(MOUSE_LEFT_BUTTON) || IsGestureDetected(GESTURE_TAP)) && hovered_sandbox) g_state.sandbox_mode = !g_state.sandbox_mode;
 }
 
 // Draw help overlay
@@ -165,23 +165,19 @@ void draw_help() {
   DrawText("H - Human starts first", 70, 160, 20, text_color);
   DrawText("F1 - Toggle help menu", 70, 190, 20, text_color);
   DrawText("T - Toggle dark/light theme", 70, 220, 20, text_color);
+  DrawText("S - Toggles sandbox mode", 70, 250, 20, text_color);
 }
 
-// Draw win/lose popup with Play Again button
+// Draw game over popup
 void draw_game_over_popup() {
-  int popup_w = 300;
-  int popup_h = 150;
+  int popup_w = 300, popup_h = 150;
   int x = (g_state.win_w - popup_w) / 2;
   int y = (g_state.win_h - popup_h) / 2;
 
-  // Semi-transparent background
   DrawRectangle(0, 0, g_state.win_w, g_state.win_h, Fade(BLACK, 0.5f));
-
-  // Popup box
   DrawRectangle(x, y, popup_w, popup_h, g_state.dark_theme ? DARKGRAY : LIGHTGRAY);
   DrawRectangleLines(x, y, popup_w, popup_h, BLACK);
 
-  // Determine message
   const char *msg;
   TTacByte state = ttac_game_state(g_state.game);
   if (state == TTAC_GAME_PLAYER_WIN)
@@ -191,13 +187,10 @@ void draw_game_over_popup() {
   else
     msg = "Draw!";
 
-  // Draw message text
   int text_w = MeasureText(msg, 30);
   DrawText(msg, x + (popup_w - text_w) / 2, y + 30, 30, g_state.dark_theme ? WHITE : BLACK);
 
-  // Draw Play Again button
-  int btn_w = 120;
-  int btn_h = 40;
+  int btn_w = 120, btn_h = 40;
   int btn_x = x + (popup_w - btn_w) / 2;
   int btn_y = y + 90;
   Color text_color = g_state.dark_theme ? WHITE : BLACK;
@@ -225,10 +218,14 @@ void game_loop() {
 #endif
 
   // ===== INPUT =====
-  if (!g_state.game_over) {
-    Vector2 mouse = GetMousePosition();
-    if (mouse.y >= HEADER_HEIGHT && (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) || IsGestureDetected(GESTURE_TAP))) {
-      TTacCell move = mouse_to_cell(mouse.x, mouse.y, g_state.win_w / GRID_SIZE, (g_state.win_h - HEADER_HEIGHT) / GRID_SIZE);
+  Vector2 mouse = GetMousePosition();
+  if (mouse.y >= HEADER_HEIGHT && (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) || IsGestureDetected(GESTURE_TAP))) {
+    if (g_state.sandbox_mode) {
+      TTacCell cell = mouse_to_cell(mouse.x, mouse.y, cell_w, cell_h);
+      int idx = cell_to_index(cell);
+      if (idx >= 0) g_state.sandbox_board[idx] = (g_state.sandbox_board[idx] + 1) % 3;
+    } else if (!g_state.game_over) {
+      TTacCell move = mouse_to_cell(mouse.x, mouse.y, cell_w, cell_h);
       int idx = cell_to_index(move);
       if (idx >= 0 && g_state.board[idx] == 0) {
         g_state.board[idx] = 1; // human
@@ -250,6 +247,7 @@ void game_loop() {
   if (IsKeyPressed(KEY_H)) start_game(MODE_HUMAN_START);
   if (IsKeyPressed(KEY_F1)) g_state.show_help = !g_state.show_help;
   if (IsKeyPressed(KEY_T)) g_state.dark_theme = !g_state.dark_theme;
+  if (IsKeyPressed(KEY_S)) g_state.sandbox_mode = !g_state.sandbox_mode;
 
   // ===== DRAW =====
   BeginDrawing();
@@ -265,10 +263,14 @@ void game_loop() {
   }
 
   // Symbols
-  for (int i = 0; i < 9; ++i)
-    if (g_state.board[i] != 0) draw_symbol(i, g_state.board[i], cell_w, cell_h);
+  for (int i = 0; i < 9; ++i) {
+    if (g_state.sandbox_mode) {
+      if (g_state.sandbox_board[i] != 0) draw_symbol(i, g_state.sandbox_board[i], cell_w, cell_h);
+    } else {
+      if (g_state.board[i] != 0) draw_symbol(i, g_state.board[i], cell_w, cell_h);
+    }
+  }
 
-  // Draw overlays
   if (g_state.show_help) draw_help();
   if (g_state.game_over) draw_game_over_popup();
   g_state.ignore_clicks_this_frame = false;
@@ -285,12 +287,10 @@ int main() {
   start_game(MODE_AI_START);
 
 #if defined(PLATFORM_WEB)
-  // Web-specific setup
   SetWindowSize(GetScreenWidth(), GetScreenHeight());
   g_state.dark_theme = prefers_dark_mode();
   emscripten_set_main_loop(game_loop, 0, 1);
 #else
-  // Desktop loop
   while (!WindowShouldClose()) game_loop();
 #endif
 
