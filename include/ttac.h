@@ -13,11 +13,11 @@ typedef struct TTacGame TTacGame;
 typedef TTacCell (*TTacBranch)(TTacGame *game, TTacCell move);
 
 struct TTacGame {
+  TTacBranch branch;
+  TTacBool state;
   TTacCell c1;
   TTacCell c2;
   TTacCell c3;
-  TTacBool state;
-  TTacBranch branch;
 };
 
 #define TTAC_TOP_LEFT 0b1000
