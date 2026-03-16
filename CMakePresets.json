@@ -43,9 +43,7 @@
         "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
         "CPM_USE_LOCAL_PACKAGES": "ON",
         "TTAC_TESTS": "ON",
-        "TTAC_EXAMPLE": "ON",
-        "CMAKE_C_FLAGS_DEBUG": "-D_DEBUG",
-        "CMAKE_CXX_FLAGS_DEBUG": "-D_DEBUG"
+        "TTAC_EXAMPLE": "ON"
       }
     }
   ],
