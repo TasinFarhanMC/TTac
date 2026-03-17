@@ -1,0 +1,28 @@
+name: Create Release
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Configure CMake
+      run: cmake --preset release -G Ninja -D TTAC_EXAMPLE=ON -DCMAKE_EXE_LINKER_FLAGS="-static"
+
+    - name: Build
+      run: cmake --build --preset release
+
+    - name: Upload Artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: ttac_raylib-${{ matrix.os }}
+        path: ./bin/ttac_raylib*
