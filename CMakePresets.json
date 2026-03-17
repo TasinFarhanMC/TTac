@@ -8,9 +8,7 @@
       "cacheVariables": {
         "CMAKE_RUNTIME_OUTPUT_DIRECTORY": "${sourceDir}/bin",
         "CMAKE_ARCHIVE_OUTPUT_DIRECTORY": "${sourceDir}/lib",
-        "CMAKE_LIBRARY_OUTPUT_DIRECTORY": "${sourceDir}/lib",
-        "CMAKE_C_COMPILER_LAUNCHER": "ccache",
-        "CMAKE_CXX_COMPILER_LAUNCHER": "ccache"
+        "CMAKE_LIBRARY_OUTPUT_DIRECTORY": "${sourceDir}/lib"
       }
     },
     {
@@ -42,6 +40,8 @@
         "CMAKE_BUILD_TYPE": "Debug",
         "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
         "CPM_USE_LOCAL_PACKAGES": "ON",
+        "CMAKE_C_COMPILER_LAUNCHER": "ccache",
+        "CMAKE_CXX_COMPILER_LAUNCHER": "ccache",
         "TTAC_TESTS": "ON",
         "TTAC_EXAMPLE": "ON"
       }

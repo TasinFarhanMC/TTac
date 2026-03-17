@@ -29,8 +29,7 @@ jobs:
         if [[ "${RUNNER_OS}" != "macOS" ]]; then
           LINK_FLAGS="-static"
         fi
-        cmake --preset release -G Ninja -D TTAC_EXAMPLE=ON -DCMAKE_EXE_LINKER_FLAGS="$LINK_FLAGS"
-
+        cmake --preset release -G Ninja -D TTAC_EXAMPLE=ON -DCMAKE_EXE_LINKER_FLAGS="$LINK_FLAGS" 
     - name: Build
       run: cmake --build --preset release
 
