@@ -1,4 +1,4 @@
-name: Create Release
+name: Build Raylib Example
 
 on:
   push:
@@ -16,7 +16,12 @@ jobs:
     - uses: actions/checkout@v4
 
     - name: Configure CMake
-      run: cmake --preset release -G Ninja -D TTAC_EXAMPLE=ON -DCMAKE_EXE_LINKER_FLAGS="-static"
+      run: |
+        LINK_FLAGS=""
+        if [[ "${RUNNER_OS}" != "macOS" ]]; then
+          LINK_FLAGS="-static"
+        fi
+        cmake --preset release -G Ninja -D TTAC_EXAMPLE=ON -DCMAKE_EXE_LINKER_FLAGS="$LINK_FLAGS"
 
     - name: Build
       run: cmake --build --preset release
