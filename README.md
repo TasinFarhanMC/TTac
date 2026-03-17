@@ -16,7 +16,7 @@ Include the header and define the implementation in a source file:
 #include "ttac.h"
 ```
 
-Use random from libc for randomness
+Use rand from libc for randomness
 
 ```c
 #define TTAC_C_RANDOM
@@ -36,7 +36,7 @@ Optionally, provide a custom random function:
 
 #### Options
 
-* `TTAC_C_RANDOM` — use `random()` from libc
+* `TTAC_C_RANDOM` — use `rand()` from libc
 * `TTAC_USER_RANDOM` — define your own random function
 
 #### Using FetchContent

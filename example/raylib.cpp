@@ -270,7 +270,7 @@ void game_loop() {
 }
 
 int main() {
-  srandom(time(nullptr));
+  srand(time(nullptr));
   SetConfigFlags(FLAG_WINDOW_RESIZABLE);
   InitWindow(g_state.win_w, g_state.win_h, "TTac AI / Human");
 
