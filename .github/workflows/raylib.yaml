@@ -24,6 +24,18 @@ jobs:
       with:
         key: ccache-$${{ matrix.os }}
 
+    - name: Set CPM_SOURCE_CACHE
+      shell: bash
+      run: echo "CPM_SOURCE_CACHE=${{ github.workspace }}/.cpm_cache" >> $GITHUB_ENV
+
+    - name: Restore CPM cache
+      uses: actions/cache@v4
+      with:
+        path: ${{ env.CPM_SOURCE_CACHE }}
+        key: ${{ runner.os }}-cpm-${{ hashFiles('**/CMakeLists.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-cpm-
+
     - name: Dependencies Linux
       if: ${{ matrix.os == 'ubuntu-latest' }}
       uses: awalsh128/cache-apt-pkgs-action@latest
