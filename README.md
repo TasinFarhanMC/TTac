@@ -207,3 +207,12 @@ int main() {
 
 * A full example using **raylib** can be found at [example/raylib.cpp](https://github.com/TasinFarhanMC/ttac/blob/main/example/raylib.cpp).
 * Web version of the raylib example (built with **[emscripten](https://github.com/emscripten-core/emscripten)**): [tasinfarhanmc.github.io/TTac](https://tasinfarhanmc.github.io/TTac/).
+
+#### Build Raylib Example
+
+```bash
+cmake --preset release -DTTAC_EXAMPLE=ON
+cmake --build --preset release
+```
+
+The binary will be placed at `./bin/ttac_raylib`
