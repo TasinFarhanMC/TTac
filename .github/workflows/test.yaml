@@ -8,7 +8,8 @@ on:
 
 jobs:
   build-test:
-    runs-on: ubuntu-latest   # no matrix needed
+    runs-on: ubuntu-latest 
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4

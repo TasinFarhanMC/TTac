@@ -28,6 +28,8 @@
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release",
         "TTAC_EXAMPLE": "ON",
+        "CMAKE_C_COMPILER_LAUNCHER": "ccache",
+        "CMAKE_CXX_COMPILER_LAUNCHER": "ccache",
         "CMAKE_RUNTIME_OUTPUT_DIRECTORY": "${sourceDir}/web"
       }
     },

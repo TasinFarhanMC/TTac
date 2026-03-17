@@ -13,6 +13,9 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
 
+    env:
+      LINK_FLAGS: ${{ matrix.os == 'windows-latest' && '-static' || '' }}
+
     steps:
     - uses: actions/checkout@v4
 
@@ -24,12 +27,8 @@ jobs:
 
     - name: Configure CMake
       shell: bash
-      run: |
-        LINK_FLAGS=""
-        if [[ "${RUNNER_OS}" != "macOS" ]]; then
-          LINK_FLAGS="-static"
-        fi
-        cmake --preset release -G Ninja -D TTAC_EXAMPLE=ON -DCMAKE_EXE_LINKER_FLAGS="$LINK_FLAGS" 
+      run: cmake --preset release -G Ninja -D TTAC_EXAMPLE=ON -DCMAKE_EXE_LINKER_FLAGS="$LINK_FLAGS" 
+
     - name: Build
       run: cmake --build --preset release
 
