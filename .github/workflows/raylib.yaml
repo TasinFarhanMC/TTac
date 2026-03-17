@@ -9,11 +9,18 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     strategy:
+      fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
 
     steps:
     - uses: actions/checkout@v4
+
+    - name: Dependencies Linux
+      if: ${{ matrix.os == 'ubuntu-latest' }}
+      uses: awalsh128/cache-apt-pkgs-action@latest
+      with:
+        packages: libwayland-dev libxkbcommon-dev xorg-dev xvfb
 
     - name: Configure CMake
       shell: bash
