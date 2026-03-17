@@ -82,11 +82,11 @@ extern void ttac_create_game(TTacGame *game, TTacBool ai_start);
 #endif
 
 #ifdef TTAC_IMPLEMENTATION
-#ifdef TTAC_C_RANDOM
+#ifdef TTAC_USER_RANDOM
+#define ttac_random TTAC_USER_RANDOM
+#elif defined(TTAC_C_RANDOM)
 #include <stdlib.h>
 #define ttac_random random
-#elif defined(TTAC_USER_RANDOM)
-#define ttac_random TTAC_USER_RANDOM
 #else
 #define ttac_random() 0
 #endif // TTAC_C_RANDOM
