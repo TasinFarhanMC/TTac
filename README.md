@@ -4,7 +4,8 @@
 
 It encodes cell symmetry in bits to minimize logic, allowing **constant-time moves** and **tiny memory usage**. The engine works for both **AI-first** and **player-first** games. All logic is deterministic and can be directly translated into hardware.
 
-*Note: Tic-Tac-Toe has multiple equivalent optimal move trees, but this engine uses only the **one** with the most **threats**.*
+> [!NOTE]
+> Tic-Tac-Toe has multiple equivalent optimal move trees, but this engine uses only the **one** with the most **threats**.
 
 Try it now in the [**Web Example**](https://tasinfarhanmc.github.io/TTac/)
 ## Setup
