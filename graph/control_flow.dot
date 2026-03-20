@@ -1,0 +1,148 @@
+digraph TTacControlFlow {
+  graph [bgcolor=transparent, rankdir=LR];
+  node [shape=box];
+
+  win [label="Win", shape=doublecircle, style="filled, bold", color="#40D0C0"];
+  draw [label="Draw", shape=doublecircle, style="filled, bold", color="#D0E0DD"];
+  { rank = max; win; draw; }
+
+  fork -> win;
+  { rank = same; fork; }
+
+  game [label="Create Game", shape=diamond, style=bold, width=1, height=2];
+  game -> ai [label="ai_start=true"];
+  game -> player [label="ai_start=false"];
+  
+
+  subgraph cluster_ai {
+    label="AI";
+    style=bold;
+
+    ai -> next;
+
+    next -> end [label="Non Center"];
+    next -> center [label="Center"];
+
+    end -> fork;
+
+    subgraph cluster_center {
+      label="Center";
+      style=dotted;
+
+      center -> fork [label="Corner"];
+
+      center -> center_next [label="Edge"];
+
+      center_next [label="next"];
+      center_end [label="end"];
+
+      center_next -> win;
+      center_next -> center_end;
+
+      center_end -> win;
+      center_end -> draw;
+
+    };
+  }
+  
+  subgraph cluster_player {
+    label="Player";
+    style=bold;
+
+    player_draw -> draw;
+    {rank=max; player_draw};
+
+    subgraph cluster_terminal {
+      style="invis";
+
+      checked_draw -> player_draw;
+      move_draw -> player_draw;
+      draw_y -> player_draw;
+      // {rank=same; checked_draw, move_draw, draw_y};
+
+      win_y -> win;
+      win_y -> move_draw;
+    }
+
+    player -> player_center [label="Center"];
+    player -> player_corner [label="Corner"];
+    player -> player_edge [label="Edge"];
+
+    subgraph cluster_center {
+      label="Center";
+      style=dashed;
+
+      player_center [label="center"];
+      player_center_corner [label="corner"];
+      player_center_adj_edge [label="adj_edge"];
+      player_center_opp_edge [label="opp_edge"];
+
+      player_center -> player_center_corner [label="Corner"];
+
+      player_center_corner -> win;
+      player_center_corner -> checked_draw;
+
+      subgraph cluster_center_edge {
+        style="invis";
+        rank = same;
+
+        player_center -> player_center_adj_edge [label="Adjacent Edge"];
+        player_center -> player_center_opp_edge [label="Opposite Edge"];
+
+        player_center_adj_edge -> fork;
+        player_center_adj_edge -> draw_y;
+        player_center_adj_edge -> checked_draw;
+        player_center_adj_edge -> move_draw;
+
+        player_center_opp_edge -> win;
+        player_center_opp_edge -> checked_draw;
+      }
+    }
+
+
+    subgraph cluster_corner {
+      label="Corner";
+      style=dashed;
+
+      player_corner [label="corner"];
+      player_corner_next [label="next"];
+
+      player_corner -> player_corner_next;
+      player_corner -> win_y [label="Opposite Edge"];
+
+      player_corner_next -> win;
+      player_corner_next -> checked_draw;
+    }
+
+    subgraph cluster_edge {
+      label="Edge";
+      style=dashed;
+
+      player_edge [label="edge"];
+      player_edge_center [label="center"];
+      player_edge_opp_corner [label="opp_corner"];
+      player_edge_adj_corner [label="adj_corner"];
+
+      player_edge -> win_y [label="Other Corner"];
+      player_edge -> player_edge_center [label="Center"];
+      player_edge -> player_edge_opp_corner [label="Opposite Corner"];
+      player_edge -> player_edge_adj_corner [label="Adjacent Corner"];
+      player_edge -> player_edge_opp_edge [label="Opposite Edge"];
+      player_edge -> player_edge_opp [label="Adjacent Edge Opposite"];
+      player_edge -> player_edge_adj [label="Adjacent Edge Adjacent"];
+
+      subgraph cluster_edge {
+        style=invis;
+        player_edge_opp_edge [label="opp_edge"];
+
+        subgraph cluster_adj_edge {
+          label="Adjacent Edge";
+          style=dotted;
+  
+          player_edge_opp [label="opp"];
+          player_edge_adj [label="adj"];
+        }
+      }
+    }
+  }
+}
