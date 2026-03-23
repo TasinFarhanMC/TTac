@@ -283,11 +283,15 @@ int main() {
   InitWindow(600, 600, "TTac");
   SetTargetFPS(60);
   start_game(MODE_AI_START);
+
 #if defined(PLATFORM_WEB)
+  SetWindowSize(GetScreenWidth(), GetScreenHeight());
+  g_state.dark_theme = prefers_dark_mode();
   emscripten_set_main_loop(game_loop, 0, 1);
 #else
   while (!WindowShouldClose()) game_loop();
 #endif
+
   CloseWindow();
   return 0;
 }
