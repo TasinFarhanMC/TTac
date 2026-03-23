@@ -62,6 +62,11 @@ digraph TTacControlFlow {
 
       win_y -> win;
       win_y -> move_draw;
+
+      center_and_edge -> fork;
+      center_and_edge -> draw_y;
+      center_and_edge -> checked_draw;
+      center_and_edge -> move_draw;
     }
 
     player -> player_center [label="Center"];
@@ -74,7 +79,6 @@ digraph TTacControlFlow {
 
       player_center [label="center"];
       player_center_corner [label="corner"];
-      player_center_adj_edge [label="adj_edge"];
       player_center_opp_edge [label="opp_edge"];
 
       player_center -> player_center_corner [label="Corner"];
@@ -86,19 +90,13 @@ digraph TTacControlFlow {
         style="invis";
         rank = same;
 
-        player_center -> player_center_adj_edge [label="Adjacent Edge"];
+        player_center -> center_and_edge [label="Adjacent Edge"];
         player_center -> player_center_opp_edge [label="Opposite Edge"];
-
-        player_center_adj_edge -> fork;
-        player_center_adj_edge -> draw_y;
-        player_center_adj_edge -> checked_draw;
-        player_center_adj_edge -> move_draw;
 
         player_center_opp_edge -> win;
         player_center_opp_edge -> checked_draw;
       }
     }
-
 
     subgraph cluster_corner {
       label="Corner";
@@ -124,7 +122,7 @@ digraph TTacControlFlow {
       player_edge_adj_corner [label="adj_corner"];
 
       player_edge -> win_y [label="Other Corner"];
-      player_edge -> player_edge_center [label="Center"];
+      player_edge -> center_and_edge [label="Center"];
       player_edge -> player_edge_opp_corner [label="Opposite Corner"];
       player_edge -> player_edge_adj_corner [label="Adjacent Corner"];
       player_edge -> player_edge_opp_edge [label="Opposite Edge"];
@@ -138,7 +136,7 @@ digraph TTacControlFlow {
         subgraph cluster_adj_edge {
           label="Adjacent Edge";
           style=dotted;
-  
+
           player_edge_opp [label="opp"];
           player_edge_adj [label="adj"];
         }
