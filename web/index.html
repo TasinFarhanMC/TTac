@@ -2,15 +2,14 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-
     <meta
       name="viewport"
-      content="width=device-width, height=device-height, initial-scale=1.0, user-scalable=no"
+      content="width=device-width, initial-scale=1.0, user-scalable=no"
     />
-
-    <title>TTAC Web</title>
+    <title>TTac - Optimized Tic-Tac-Toe</title>
 
     <style>
+      /* Reset and fill viewport */
       html,
       body {
         margin: 0;
@@ -18,29 +17,88 @@
         width: 100%;
         height: 100%;
         overflow: hidden;
-        background: black;
+        background-color: #1a1a1a; /* Matches a typical dark theme */
+        display: flex;
+        align-items: center;
+        justify-content: center;
       }
 
+      /* The Game Canvas */
       canvas {
         display: block;
-        touch-action: none;
+        touch-action: none; /* Prevents mobile scrolling while playing */
+        outline: none;
+      }
+
+      /* Loading Spinner */
+      #loader {
+        position: absolute;
+        border: 4px solid #333;
+        border-top: 4px solid #00aaff;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      .hidden {
+        display: none !important;
       }
     </style>
   </head>
 
   <body>
+    <div id="loader"></div>
     <canvas id="canvas"></canvas>
 
     <script>
-      var Module = {
-        canvas: document.getElementById("canvas"),
+      const canvas = document.getElementById("canvas");
+      const loader = document.getElementById("loader");
 
-        onRuntimeInitialized() {
-          console.log("WASM loaded");
+      var Module = {
+        canvas: canvas,
+        onRuntimeInitialized: function () {
+          console.log("TTac WASM Initialized");
+          loader.classList.add("hidden");
+
+          // Sync canvas size with browser window
+          window.addEventListener("resize", syncCanvasSize);
+          syncCanvasSize();
         },
+        print: (text) => console.log(text),
+        printErr: (text) => console.error(text),
       };
+
+      function syncCanvasSize() {
+        // devicePixelRatio handles Retina/4K scaling issues
+        const dpr = window.devicePixelRatio || 1;
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+
+        // Internal resolution (what the GPU draws to)
+        canvas.width = width * dpr;
+        canvas.height = height * dpr;
+
+        // Display size (what the user sees)
+        canvas.style.width = width + "px";
+        canvas.style.height = height + "px";
+
+        // This tells Emscripten/Raylib that the container resized
+        if (Module.setCanvasSize) {
+          Module.setCanvasSize(width, height);
+        }
+      }
     </script>
 
-    <script src="./ttac_raylib.js"></script>
+    <script async src="./ttac_raylib.js"></script>
   </body>
 </html>
