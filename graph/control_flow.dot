@@ -41,7 +41,6 @@ digraph TTacControlFlow {
 
       center_end -> win;
       center_end -> draw;
-
     };
   }
   
@@ -57,14 +56,12 @@ digraph TTacControlFlow {
 
       checked_draw -> player_draw;
       move_draw -> player_draw;
-      draw_y -> player_draw;
-      // {rank=same; checked_draw, move_draw, draw_y};
+      // {rank=same; checked_draw, move_draw};
 
       win_y -> win;
       win_y -> move_draw;
 
       center_and_edge -> fork;
-      center_and_edge -> draw_y;
       center_and_edge -> checked_draw;
       center_and_edge -> move_draw;
     }

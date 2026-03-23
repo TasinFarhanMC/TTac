@@ -1,1 +1,0 @@
-merge draw_y into move_draw using c3 == move || c2 == move ? c1 : c2;
