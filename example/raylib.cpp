@@ -92,12 +92,12 @@ void start_game(Mode start_mode) {
   g_state.mode = start_mode;
 
   if (start_mode == MODE_AI_START) {
-    ttac_create_game(&g_state.game, true);
+    ttac_start_game(&g_state.game, true);
     TTacCell ai_move = ttac_play(g_state.game, 255);
     int idx = cell_to_index(ai_move);
     if (idx >= 0) g_state.board[idx] = 2;
   } else {
-    ttac_create_game(&g_state.game, false);
+    ttac_start_game(&g_state.game, false);
   }
 }
 

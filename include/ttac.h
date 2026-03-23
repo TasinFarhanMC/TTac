@@ -71,7 +71,7 @@ struct TTacGame {
 extern const TTacCell ttac_corners[4];
 extern const TTacCell ttac_edges[4];
 
-extern void ttac_create_game(TTacGame *game, TTacBool ai_start);
+extern void ttac_start_game(TTacGame *game, TTacBool ai_start);
 
 #define ttac_play(game, move) ((game).branch(&(game), move))
 #define ttac_play_ptr(game, move) ((game)->branch((game), move))
@@ -96,7 +96,7 @@ const TTacCell ttac_edges[4] = {TTAC_TOP, TTAC_BOTTOM, TTAC_LEFT, TTAC_RIGHT};
 
 static TTacCell ttac_branch_ai(TTacGame *game, TTacCell move);
 static TTacCell ttac_branch_player(TTacGame *game, TTacCell move);
-void ttac_create_game(TTacGame *game, TTacBool ai_start) {
+void ttac_start_game(TTacGame *game, TTacBool ai_start) {
   game->state = TTAC_GAME_PENDING;
   game->branch = (TTacBranch)(ai_start ? ttac_branch_ai : ttac_branch_player);
 }
@@ -433,7 +433,7 @@ static TTacCell ttac_branch_player_corner(TTacGame *game, TTacCell move) {
 static TTacCell ttac_branch_player_corner_next(TTacGame *game, TTacCell move) {
   const TTacCell c1 = game->c1;
   const TTacCell c3 = game->c3;
-  
+
   if (move != c3) {
     game->state = TTAC_GAME_AI_WIN;
     return c3;

@@ -9,7 +9,7 @@ digraph TTacControlFlow {
   fork -> win;
   { rank = same; fork; }
 
-  game [label="Create Game", shape=diamond, style=bold, width=1, height=2];
+  game [label="Start Game", shape=diamond, style=bold, width=1, height=2];
   game -> ai [label="ai_start=true"];
   game -> player [label="ai_start=false"];
   

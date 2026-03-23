@@ -162,7 +162,7 @@ TTAC_OPP_GEN_ADJ(a,b) // Generates an opposite cell to b that is opposite to a
 
 | Function                                              | Description                                                    |
 | ----------------------------------------------------- | -------------------------------------------------------------- |
-| `ttac_create_game(TTacGame *game, TTacBool ai_start)` | Initializes a new game. If `ai_start` is true, AI moves first. |
+| `ttac_start_game(TTacGame *game, TTacBool ai_start)`  | Initializes a new game. If `ai_start` is true, AI moves first. |
 | `ttac_play(game, move)`                               | Plays a move on a game instance (by value).                    |
 | `ttac_play_ptr(game, move)`                           | Plays a move on a pointer to a game instance.                  |
 
@@ -196,7 +196,7 @@ A minimal C example using TTac:
 
 int main() {
     TTacGame game;
-    ttac_create_game(&game, 1); // AI starts
+    ttac_start_game(&game, 1); // AI starts
     TTacCell move = TTAC_CENTER;
 
     TTacCell ai_move = ttac_play_ptr(&game, move);
