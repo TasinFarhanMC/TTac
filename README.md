@@ -205,7 +205,7 @@ int main() {
     ttac_start_game(&game, 1); // AI starts
     TTacCell move = TTAC_CENTER;
 
-    TTacCell ai_move = ttac_play_ptr(&game, move);
+    TTacCell ai_move = ttac_play(game, move);
     printf("AI plays: %d\n", ai_move);
 
     return 0;
