@@ -4,6 +4,7 @@
 
 It encodes cell symmetry in bits to minimize logic, allowing **constant-time moves** and **tiny memory usage**. The engine works for both **AI-first** and **player-first** games. All logic is deterministic and can be directly translated into hardware.
 
+
 > [!NOTE]
 > Tic-Tac-Toe has multiple equivalent optimal move trees, but this engine uses only the **one** with the most **threats**.
 
@@ -174,17 +175,22 @@ extern const TTacCell ttac_edges[4];
 ```
 
 ---
-
 ### How It Works
 
-1. **FSM-based engine:**
-   Each game instance maintains a `branch` pointer representing the current FSM state. Moves trigger state changes, and outputs are computed using bit operations on state and move.
+1. **FSM-based Engine:**
+   Each game instance maintains a `branch` pointer representing the current state of the Finite State Machine. Moves trigger state transitions, and outputs are computed using bit operations on the state and move data.
+   
+   ##### Control Flow Graph
+   ![TTac Control Flow](graph/control_flow.svg)
+   *View the source graph: [graph/control_flow.dot](graph/control_flow.dot)*
 
-2. **Bit-encoded symmetry:**
-   Each cell encodes its position and relationships to other cells in **4 bits**, allowing adjacency and opposition calculations using **pure bitwise logic**.
+2. **Bit-encoded Symmetry:**
+   Each cell encodes its position and spatial relationships (corners, edges, center) into **4 bits**. This allows for adjacency and opposition calculations using **pure bitwise logic** rather than lookup tables or coordinate geometry.
+   * **Encoding Specification:** [encoding.md](encoding.md)
 
-3. **Deterministic Engine:**
-   No searching is performed; the precompiled FSM produces the **optimal move in constant time**.
+3. **Deterministic Logic:**
+   Because the FSM is precompiled, the engine performs no tree searching or heuristic evaluation at runtime. It produces the **optimal move in constant time** with minimal CPU cycles.
+   
 ## Example
 
 A minimal C example using TTac:
