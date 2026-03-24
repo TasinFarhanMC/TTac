@@ -169,7 +169,7 @@ void draw_header() {
     return std::make_pair(clicked, down);
   };
 
-  if (draw_btn("Reset (R)", btn_w, true).first) start_game(g_state.mode);
+  if (draw_btn("Reset", btn_w, true).first) start_game(g_state.mode);
 
   const char *mode_txt = (g_state.mode == MODE_AI_START) ? "AI First" : (g_state.mode == MODE_HUMAN_START) ? "You First" : "AI v AI";
   if (draw_btn(mode_txt, btn_w, true).first) start_game((Mode)((g_state.mode + 1) % 3));
@@ -257,7 +257,8 @@ void game_loop() {
   if (g_state.game_over) {
     float scale = std::min((float)g_state.win_w / 600.0f, (float)g_state.win_h / 600.0f);
     // Darken starting from below the header
-    DrawRectangle(0, g_state.header_h, g_state.win_w, g_state.win_h - g_state.header_h, Fade(BLACK, 0.6f));
+    float fade_alpha = g_state.dark_theme ? 0.6f : 0.25f; // lighter in light mode
+    DrawRectangle(0, g_state.header_h, g_state.win_w, g_state.win_h - g_state.header_h, Fade(BLACK, fade_alpha));
 
     const char *res_txt =
         (g_state.mode == MODE_AI_VS_AI)
