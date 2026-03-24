@@ -32,13 +32,8 @@
     <canvas id="canvas"></canvas>
 
     <script>
-      var Module = {
-        canvas: document.getElementById("canvas"),
-
-        onRuntimeInitialized() {
-          console.log("WASM loaded");
-        },
-      };
+      var canvas = document.getElementById("canvas");
+      var Module = { canvas: canvas };
     </script>
 
     <script src="./ttac_raylib.js"></script>
