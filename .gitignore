@@ -7,7 +7,6 @@ compile_commands.json
 imgui.ini
 *.log
 *.data*
-*.svg*
 main/
 *.js
 *.wasm

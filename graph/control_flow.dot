@@ -1,143 +1,158 @@
-digraph TTacControlFlow {
-  graph [bgcolor=transparent, rankdir=LR];
-  node [shape=box];
+digraph ControlFlow {
+  graph [
+    bgcolor="#1f2328",
+    fontcolor="#b1bac4",
+    rankdir=LR,
+    newrank=true,
+    nodesep=0.5,
+    ranksep=1.2
+  ];
+  
+  node [shape=box, fontcolor="#b1bac4", color="#6e7681"];
+  edge [color="#6e7681", fontcolor="#b1bac4"];
 
-  win [label="Win", shape=doublecircle, style="filled, bold", color="#40D0C0"];
-  draw [label="Draw", shape=doublecircle, style="filled, bold", color="#D0E0DD"];
-  { rank = max; win; draw; }
+  // -------------------
+  // 1. Terminals (Stay Outside)
+  // -------------------
+  win [label="Win", shape=doublecircle, style="filled, bold", color="#2ea043", fontcolor="#0d1117"];
+  draw [label="Draw", shape=doublecircle, style="filled, bold", color="#8b949e", fontcolor="#0d1117"];
+  fork;
 
-  fork -> win;
-  { rank = same; fork; }
-
+  // -------------------
+  // 2. Start Logic
+  // -------------------
   game [label="Start Game", shape=diamond, style=bold, width=1, height=2];
   game -> ai [label="ai_start=true"];
   game -> player [label="ai_start=false"];
-  
 
+  // -------------------
+  // 3. AI Branch (Weight = 0)
+  // -------------------
   subgraph cluster_ai {
     label="AI";
-    style=bold;
-
+    style=bold; color="#8b949e";
+    
     ai -> next;
-
     next -> end [label="Non Center"];
-    next -> center [label="Center"];
+    next -> ai_center;
 
-    end -> fork;
-
-    subgraph cluster_center {
+    subgraph cluster_ai_center {
       label="Center";
-      style=dotted;
-
-      center -> fork [label="Corner"];
-
-      center -> center_next [label="Edge"];
-
-      center_next [label="next"];
-      center_end [label="end"];
-
-      center_next -> win;
-      center_next -> center_end;
-
-      center_end -> win;
-      center_end -> draw;
+      style=dashed; color="#9ca3af";
+      ai_center [label="center"];
+      ai_center -> ai_center_next [label="Edge"];
+      ai_center_next -> ai_center_end;
     };
   }
-  
+
+  // -------------------
+  // 4. Player Branch (Weight = 5)
+  // -------------------
   subgraph cluster_player {
     label="Player";
-    style=bold;
-
-    player_draw -> draw;
-    {rank=max; player_draw};
-
-    subgraph cluster_terminal {
-      style="invis";
-
-      checked_draw -> player_draw;
-      move_draw -> player_draw;
-      // {rank=same; checked_draw, move_draw};
-
-      win_y -> win;
-      win_y -> move_draw;
-
-      center_and_edge -> fork;
-      center_and_edge -> checked_draw;
-      center_and_edge -> move_draw;
-    }
+    style=bold; color="#8b949e";
 
     player -> player_center [label="Center"];
     player -> player_corner [label="Corner"];
     player -> player_edge [label="Edge"];
 
-    subgraph cluster_center {
-      label="Center";
-      style=dashed;
+    subgraph cluster_terminal_logic {
+      style="invis";
+      checked_draw -> player_draw;
+      move_draw -> player_draw;
+      y -> move_draw;
+      center_and_edge -> checked_draw;
+      center_and_edge -> move_draw;
+    }
 
+    subgraph cluster_player_center {
+      label="Center";
+      style=dashed; color="#9ca3af";
       player_center [label="center"];
       player_center_corner [label="corner"];
       player_center_opp_edge [label="opp_edge"];
-
       player_center -> player_center_corner [label="Corner"];
 
-      player_center_corner -> win;
-      player_center_corner -> checked_draw;
-
-      subgraph cluster_center_edge {
-        style="invis";
-        rank = same;
-
+      subgraph cluster_player_center_edge {
+        style=invis;
         player_center -> center_and_edge [label="Adjacent Edge"];
         player_center -> player_center_opp_edge [label="Opposite Edge"];
-
-        player_center_opp_edge -> win;
-        player_center_opp_edge -> checked_draw;
       }
     }
 
-    subgraph cluster_corner {
+    subgraph cluster_player_corner {
       label="Corner";
-      style=dashed;
-
+      style=dashed; color="#9ca3af";
       player_corner [label="corner"];
       player_corner_next [label="next"];
-
       player_corner -> player_corner_next;
-      player_corner -> win_y [label="Opposite Edge"];
-
-      player_corner_next -> win;
-      player_corner_next -> checked_draw;
+      player_corner -> y [label="Opposite Edge"];
     }
 
-    subgraph cluster_edge {
+    subgraph cluster_player_edge {
       label="Edge";
-      style=dashed;
-
+      style=dashed; color="#9ca3af";
       player_edge [label="edge"];
-      player_edge_center [label="center"];
       player_edge_opp_corner [label="opp_corner"];
       player_edge_adj_corner [label="adj_corner"];
 
-      player_edge -> win_y [label="Other Corner"];
+      player_edge -> y [label="Other Corner"];
       player_edge -> center_and_edge [label="Center"];
       player_edge -> player_edge_opp_corner [label="Opposite Corner"];
       player_edge -> player_edge_adj_corner [label="Adjacent Corner"];
       player_edge -> player_edge_opp_edge [label="Opposite Edge"];
-      player_edge -> player_edge_opp [label="Adjacent Edge Opposite"];
-      player_edge -> player_edge_adj [label="Adjacent Edge Adjacent"];
+      player_edge -> player_edge_opp;
+      player_edge -> player_edge_adj;
 
-      subgraph cluster_edge {
-        style=invis;
-        player_edge_opp_edge [label="opp_edge"];
-
-        subgraph cluster_adj_edge {
+      subgraph cluster_adj_edge {
           label="Adjacent Edge";
-          style=dotted;
-
+          style=dotted; color="#c0c5cc";
           player_edge_opp [label="opp"];
           player_edge_adj [label="adj"];
-        }
       }
     }
   }
+
+  // -------------------
+  // 5. GLOBAL CONNECTIONS (Weight Balanced)
+  // -------------------
+
+  // AI Exits: WEIGHT 0 (No pulling power)
+  end -> fork [weight=0];
+  ai_center -> fork [label="Corner", weight=0];
+  ai_center_next -> win [weight=0];
+  ai_center_end -> win [weight=0];
+  ai_center_end -> draw [weight=0];
+
+  // Player Exits: WEIGHT 5 (Strong anchoring power)
+  player_draw -> draw [weight=5];
+  y -> win [weight=5];
+  center_and_edge -> fork [weight=0];
+  
+  player_center_corner -> win [weight=5];
+  player_center_corner -> checked_draw [weight=5];
+  player_center_opp_edge -> win [weight=5];
+  player_center_opp_edge -> checked_draw [weight=5];
+  
+  player_corner_next -> win [weight=5];
+  player_corner_next -> checked_draw [weight=5];
+
+  player_edge_opp_corner -> checked_draw [weight=5];
+  player_edge_opp_corner -> move_draw [weight=5];
+  player_edge_opp_corner -> fork [weight=0];
+
+  player_edge_adj_corner -> win [weight=5];
+  player_edge_adj_corner -> fork [weight=0];
+
+  player_edge_opp_edge -> win [weight=5];
+  player_edge_opp_edge -> fork [weight=0];
+
+  player_edge_opp -> win [weight=5];
+  player_edge_opp -> fork [weight=0];
+
+  player_edge_adj -> win [weight=5];
+  player_edge_adj -> checked_draw [weight=5];
+
+  // Keeps the Fork/Win relationship horizontal
+  fork -> win;
 }
